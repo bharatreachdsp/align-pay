@@ -12,7 +12,8 @@ loadEnv();
 const OUT = join(REPO_ROOT, "scripts", "video", "work", "audio");
 mkdirSync(OUT, { recursive: true });
 const VOICE = process.env.GEMINI_TTS_VOICE ?? "Charon";
-const MODELS = [process.env.GEMINI_TTS_MODEL, "gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts"].filter(Boolean) as string[];
+/** One voice for the whole video: every clip comes from the same model, or the run stops (no mixing). */
+const MODELS = [process.env.GEMINI_TTS_MODEL ?? "gemini-2.5-flash-preview-tts"];
 
 export function seconds(file: string): number {
   return Number(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", file], { encoding: "utf8" }).trim());
@@ -22,16 +23,22 @@ async function gemini(text: string, file: string): Promise<string | null> {
   const key = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!key) return null;
   for (const model of MODELS) {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `Read this as the calm, clear, warm narrator of a short product demo, at an unhurried pace: ${text}` }] }],
-        generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } } },
-      }),
-    });
-    if (!res.ok) {
-      console.warn(`  ${model}: HTTP ${res.status}`);
+    let res: Response | null = null;
+    for (let tryN = 0; tryN < 3; tryN++) {
+      res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Narrate this for a short product demo video, in a clear, confident, warm voice, at a natural conversational pace (brisk, not slow), with short pauses: ${text}` }] }],
+          generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } } },
+        }),
+      });
+      if (res.status !== 429 && res.status !== 503) break;
+      console.warn(`  ${model}: HTTP ${res.status}, waiting 30 s`);
+      await new Promise((r) => setTimeout(r, 30_000));
+    }
+    if (!res || !res.ok) {
+      console.warn(`  ${model}: HTTP ${res?.status}`);
       continue;
     }
     const j = (await res.json()) as { candidates?: { content?: { parts?: { inlineData?: { data?: string; mimeType?: string } }[] } }[] };
@@ -40,7 +47,8 @@ async function gemini(text: string, file: string): Promise<string | null> {
     const pcm = `${file}.pcm`;
     writeFileSync(pcm, Buffer.from(part.data, "base64"));
     const rate = /rate=(\d+)/.exec(part.mimeType ?? "")?.[1] ?? "24000";
-    execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "s16le", "-ar", rate, "-ac", "1", "-i", pcm, "-af", "silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse", "-ar", "48000", file]);
+    // Trim silence at both ends, and shorten any pause inside to at most 0.35 s.
+    execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "s16le", "-ar", rate, "-ac", "1", "-i", pcm, "-af", "silenceremove=start_periods=1:start_threshold=-50dB:stop_periods=-1:stop_duration=0.35:stop_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse", "-ar", "48000", file]);
     spawnSync("rm", ["-f", pcm]);
     return `gemini:${model}:${VOICE}`;
   }
@@ -73,7 +81,8 @@ export async function narrate(scenes: Scene[]): Promise<Record<string, { seconds
   const out: Record<string, { seconds: number; engine: string }> = {};
   for (const s of scenes) {
     const file = join(OUT, `${s.id}.wav`);
-    const engine = (process.argv.includes("--say") ? null : await gemini(s.narration, file)) ?? macSay(s.narration, file);
+    const engine = process.argv.includes("--say") ? macSay(s.narration, file) : await gemini(s.narration, file);
+    if (!engine) throw new Error(`Gemini text-to-speech did not answer for ${s.id}; try again later, or use --say for the macOS voice throughout.`);
     out[s.id] = { seconds: seconds(file), engine };
     console.log(`  ${s.id}: ${out[s.id]!.seconds.toFixed(1)} s (${engine})`);
   }

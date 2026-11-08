@@ -111,7 +111,7 @@ try {
   const traced = await app.page.getByTestId("audit-row-traced").count();
   const untraced = await app.page.getByTestId("audit-row-untraced").count();
   const waiting = await app.page.locator('[data-testid="audit-row-awaiting"], [data-testid="audit-row-webhook_verified"]').count();
-  log("8. Run audit now: refunds and invoices trace to decisions; the refund made directly in PayPal is untraced", untraced > 0 && traced + waiting > 0, `${traced} traced, ${waiting} awaiting listing, ${untraced} untraced`);
+  log("8. Run audit now: this copy's refunds and invoices trace to decisions; refunds it did not make (such as the one made directly in PayPal) are untraced", untraced > 0 && traced + waiting > 0, `${traced} traced, ${waiting} awaiting listing, ${untraced} untraced`);
   await app.page.screenshot({ path: join(REPO_ROOT, ".data", "judge-audit-1440.png"), fullPage: false });
 } catch (e) {
   log("walkthrough", false, (e as Error).message.slice(0, 400));
