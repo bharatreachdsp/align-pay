@@ -1,0 +1,38 @@
+{
+  "name": "align-pay",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ALIGN Pay: every refund and invoice your AI agent makes in PayPal traces back to a human decision.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.8.0",
+  "engines": {
+    "node": ">=22.14"
+  },
+  "scripts": {
+    "demo": "tsx scripts/demo.ts",
+    "dev": "tsx scripts/demo.ts --dev",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "test:sandbox": "pnpm --filter @align-agent/paypal-guard test:sandbox",
+    "sandbox:e2e": "tsx scripts/sandbox-e2e.ts",
+    "seed": "tsx scripts/seed.ts",
+    "screenshots": "tsx scripts/screenshots.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "eslint-plugin-react-hooks": "7.1.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

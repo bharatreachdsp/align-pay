@@ -1,0 +1,32 @@
+{
+  "name": "@align-agent/paypal-guard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A guard between an AI agent and PayPal: every money-moving tool call is checked against confirmed human decisions.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src test",
+    "test": "vitest run --exclude test/sandbox.test.ts",
+    "test:sandbox": "vitest run test/sandbox.test.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "3.0.143",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@paypal/agent-toolkit": "1.11.0",
+    "ai": "6.0.325",
+    "ulid": "3.0.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "eslint": "10.14.0",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}
