@@ -1,0 +1,17 @@
+node_modules
+.next
+.env*
+!.env.example
+.data/
+submission/ANSWERS.md
+submission/CHECKS.md
+submission/video/*.mp4
+submission/video/work/
+coverage
+dist
+*.tsbuildinfo
+.DS_Store
+test-results
+playwright-report
+.turbo
+out
