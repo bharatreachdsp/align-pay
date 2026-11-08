@@ -71,9 +71,10 @@ ALIGN ledger** that ships with this repository; it does not use a live ALIGN wor
 
 - **Gemini** (Gemini API, through the AI SDK) runs the support agent's conversation, and drafts structured limits from
   each decision for the store owner to confirm. The default is Gemini 3.6 Flash, because a free Gemini key allows no
-  Pro model; set `GEMINI_MODEL` to use another.
-- **Gemini** (`GEMINI_FAST_MODEL`, also 3.6 Flash by default, with minimal thinking) writes the one-line plain reason
-  on held and blocked receipt cards, with fixed text if it takes more than three seconds.
+  Pro model. `GEMINI_MODEL` is a comma-separated list tried in order (3.6 Flash, then other Flash models), because a
+  free key allows only about 20 requests per model per day and busy models sometimes answer "high demand".
+- **Gemini Flash-Lite** (`GEMINI_FAST_MODEL`, also a list) writes the one-line plain reason on held and blocked receipt
+  cards, with fixed text if it takes more than three seconds.
 - The agent never decides on its own: it hands every refund and invoice request to the guard, and reports the result.
 - **No model decides whether money moves.** Allow, hold or block is a pure function of PayPal's facts and the limits
   a person confirmed (`packages/paypal-guard/src/engine.ts`). Customer text is untrusted: amounts, ids and owners

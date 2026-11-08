@@ -104,7 +104,7 @@ const C = scenario.customers as { asha: string; ben: string; chen: string };
   const { turn } = await ask(C.asha, "My chai case arrived damaged, please refund the $180.");
   const g = guarded(turn);
   const held = g.find((x) => x.output?.status === "held");
-  record("Asha $180 refund is held under D1", !!held && held.output?.decision_key === D1 && !g.some((x) => x.output?.status === "allowed"), held ? `${held.tool} → held, ${held.output?.decision_key}` : `outcomes: ${JSON.stringify(g.map((x) => x.output?.status))}; agent said: ${turn.text.slice(0, 160)}`);
+  record("Asha $180 refund is held under AL-1", !!held && held.output?.decision_key === D1 && !g.some((x) => x.output?.status === "allowed"), held ? `${held.tool} → held, ${held.output?.decision_key}` : `outcomes: ${JSON.stringify(g.map((x) => x.output?.status))}; agent said: ${turn.text.slice(0, 160)}`);
   if (held?.output?.action_id) {
     const a = await approve(held.output.action_id, "Photo shows the case crushed in transit.");
     const ok = a.result.status === "allowed" && !!a.result.paypalId;
@@ -126,7 +126,7 @@ const C = scenario.customers as { asha: string; ben: string; chen: string };
   const { turn } = await ask(C.ben, "Please refund my $40 order too.");
   const g = guarded(turn);
   const blocked = g.find((x) => x.output?.status === "blocked");
-  record("Ben's second refund is blocked under D2", !!blocked && blocked.output?.decision_key === D2 && !g.some((x) => x.output?.status === "allowed"), blocked ? `${blocked.output?.reason}` : `outcomes: ${JSON.stringify(g.map((x) => x.output))}; agent said: ${turn.text.slice(0, 160)}`);
+  record("Ben's second refund is blocked under AL-2", !!blocked && blocked.output?.decision_key === D2 && !g.some((x) => x.output?.status === "allowed"), blocked ? `${blocked.output?.reason}` : `outcomes: ${JSON.stringify(g.map((x) => x.output))}; agent said: ${turn.text.slice(0, 160)}`);
 }
 
 // Chen: blocked, then created and held, then sent after approval.
@@ -134,7 +134,7 @@ const C = scenario.customers as { asha: string; ben: string; chen: string };
   const first = await ask(C.chen, "Invoice me 20 cases at 20% off, net 30.");
   const g1 = guarded(first.turn);
   const b = g1.find((x) => x.output?.status === "blocked");
-  record("Chen's 20% off, net 30 invoice is blocked under D4", !!b && b.output?.decision_key === D4 && !g1.some((x) => x.output?.status === "allowed"), b ? `${b.output?.reason}` : `outcomes: ${JSON.stringify(g1.map((x) => x.output))}; agent said: ${first.turn.text.slice(0, 160)}`);
+  record("Chen's 20% off, net 30 invoice is blocked under AL-4", !!b && b.output?.decision_key === D4 && !g1.some((x) => x.output?.status === "allowed"), b ? `${b.output?.reason}` : `outcomes: ${JSON.stringify(g1.map((x) => x.output))}; agent said: ${first.turn.text.slice(0, 160)}`);
   const second = await ask(C.chen, "OK, 10% off, net 15.", first.session);
   const g2 = guarded(second.turn);
   const created = g2.find((x) => x.tool === "create_invoice" && x.output?.status === "allowed");
@@ -146,7 +146,7 @@ const C = scenario.customers as { asha: string; ben: string; chen: string };
     const third = await ask(C.chen, "Yes please send it.", second.session);
     sendId = guarded(third.turn).find((x) => x.tool === "send_invoice" && x.output?.status === "held")?.output?.action_id;
   }
-  record("sending it is held under D4 (over $2,000)", !!sendId, sendId ? `action ${sendId}` : "no held send");
+  record("sending it is held under AL-4 (over $2,000)", !!sendId, sendId ? `action ${sendId}` : "no held send");
   if (sendId && created?.output?.paypal_id) {
     const a = await approve(sendId, "Chen's café is a regular; fine to send.");
     const inv = await getInvoice(pp, created.output.paypal_id);

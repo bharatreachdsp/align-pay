@@ -20,7 +20,7 @@ export const PAYPAL_APIS: [string, string][] = [
 
 export const MODELS: [string, string][] = [
   ["Gemini 3.6 Flash (Gemini API, AI SDK)", "Runs the support agent's conversation, handing every refund and invoice request to the guard, and drafts structured limits from each ALIGN decision for the store owner to confirm. (A free key allows no Pro model; any Gemini model can be set.)"],
-  ["Gemini 3.6 Flash, minimal thinking", "Writes the one-line plain reason on held and blocked receipt cards, with a fixed fallback if it takes over three seconds."],
+  ["Gemini Flash-Lite", "Writes the one-line plain reason on held and blocked receipt cards, with a fixed fallback if it takes over three seconds."],
   ["Plain code (no model)", "Decides allow, hold or block from PayPal's facts and the confirmed limits. Block beats hold beats allow; missing facts hold."],
 ];
 
