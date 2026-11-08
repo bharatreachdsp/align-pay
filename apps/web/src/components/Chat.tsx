@@ -19,9 +19,30 @@ function ToolView({ part }: { part: ToolPart }) {
   return <div className="toolnote">↳ looked up {name.replace(/_/g, " ")}{part.state === "output-available" ? "" : "…"}</div>;
 }
 
+const storageKey = (customerId: string) => `align-pay-chat:${customerId}`;
+
+/** The conversation survives a trip to the owner page (kept in this tab's session storage). */
+function savedMessages(customerId: string): UIMessage[] {
+  try {
+    const raw = typeof window === "undefined" ? null : window.sessionStorage.getItem(storageKey(customerId));
+    return raw ? (JSON.parse(raw) as UIMessage[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function Chat({ customerId, suggestions }: { customerId: string; suggestions: string[] }) {
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat", body: { customerId } }), [customerId]);
-  const { messages, sendMessage, status, error } = useChat<UIMessage>({ id: `chat-${customerId}`, transport });
+  const initial = useMemo(() => savedMessages(customerId), [customerId]);
+  const { messages, sendMessage, status, error } = useChat<UIMessage>({ id: `chat-${customerId}`, transport, messages: initial });
+  useEffect(() => {
+    if (status !== "ready") return;
+    try {
+      window.sessionStorage.setItem(storageKey(customerId), JSON.stringify(messages));
+    } catch {
+      // storage full or disabled: the conversation just won't survive navigation
+    }
+  }, [messages, status, customerId]);
   const [text, setText] = useState("");
   const log = useRef<HTMLDivElement>(null);
   const busy = status === "submitted" || status === "streaming";

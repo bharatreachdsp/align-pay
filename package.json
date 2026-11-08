@@ -18,7 +18,12 @@
     "test:sandbox": "pnpm --filter @align-agent/paypal-guard test:sandbox",
     "sandbox:e2e": "tsx scripts/sandbox-e2e.ts",
     "seed": "tsx scripts/seed.ts",
-    "screenshots": "tsx scripts/screenshots.ts"
+    "screenshots": "tsx scripts/screenshots.ts",
+    "video": "tsx scripts/video/build.ts",
+    "video:capture": "tsx scripts/video/capture.ts",
+    "video:narrate": "tsx scripts/video/narrate.ts",
+    "assets": "tsx scripts/assets.ts",
+    "judge": "tsx scripts/judge.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -30,6 +35,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@remotion/compositor-darwin-arm64",
       "esbuild",
       "sharp",
       "unrs-resolver"

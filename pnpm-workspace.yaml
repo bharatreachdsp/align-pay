@@ -2,3 +2,4 @@ packages:
   - "packages/*"
   - "apps/*"
   - "scripts"
+  - "scripts/video/remotion"

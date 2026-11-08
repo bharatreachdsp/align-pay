@@ -1,0 +1,23 @@
+{
+  "name": "@align-pay/video",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "The demo video's composition (Remotion). Rendered by scripts/video/build.ts.",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.541",
+    "@remotion/google-fonts": "4.0.541",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.541"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "eslint": "10.14.0",
+    "typescript": "6.0.3"
+  }
+}

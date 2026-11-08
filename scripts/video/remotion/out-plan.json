@@ -1,0 +1,384 @@
+{
+  "plan": {
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "repoUrl": "github.com/bharatreachdsp/align-pay",
+    "scenes": [
+      {
+        "id": "title",
+        "kind": "title",
+        "durationInFrames": 96,
+        "captions": [],
+        "callouts": []
+      },
+      {
+        "id": "hook",
+        "kind": "segment",
+        "durationInFrames": 272,
+        "video": "scenes/hook.mp4",
+        "audio": "audio/hook.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 93,
+            "text": "AI agents can now move money through PayPal."
+          },
+          {
+            "from": 93,
+            "to": 205,
+            "text": "A support agent can refund a customer in a single tool call."
+          },
+          {
+            "from": 205,
+            "to": 249,
+            "text": "So who decided it could?"
+          }
+        ],
+        "callouts": [
+          {
+            "from": 46,
+            "to": 106,
+            "x": 402,
+            "y": 100.984375,
+            "w": 629.984375,
+            "h": 228.125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "rules",
+        "kind": "segment",
+        "durationInFrames": 433,
+        "video": "scenes/rules.mp4",
+        "audio": "audio/rules.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 95,
+            "text": "The store owner said it once, in his own words."
+          },
+          {
+            "from": 95,
+            "to": 206,
+            "text": "ALIGN keeps each decision with the exact quote as its receipt."
+          },
+          {
+            "from": 206,
+            "to": 339,
+            "text": "Gemini drafted the limits each rule implies, and the owner confirmed them."
+          },
+          {
+            "from": 339,
+            "to": 411,
+            "text": "Only confirmed limits are ever enforced."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 39,
+            "to": 99,
+            "x": 402,
+            "y": -143.015625,
+            "w": 1116,
+            "h": 57.03125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "asha-held",
+        "kind": "segment",
+        "durationInFrames": 429,
+        "video": "scenes/asha-held.mp4",
+        "audio": "audio/asha-held.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 155,
+            "text": "Asha's chai case arrived damaged, and the agent tries to refund 180 dollars."
+          },
+          {
+            "from": 155,
+            "to": 307,
+            "text": "ALIGN Pay reads PayPal's own record of the payment, sees it is above the owner's"
+          },
+          {
+            "from": 307,
+            "to": 406,
+            "text": "50 dollar limit, and holds it, quoting his decision."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 46,
+            "to": 106,
+            "x": 402,
+            "y": 100.984375,
+            "w": 629.984375,
+            "h": 228.125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "approve",
+        "kind": "segment",
+        "durationInFrames": 285,
+        "video": "scenes/approve.mp4",
+        "audio": "audio/approve.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 45,
+            "text": "The owner approves."
+          },
+          {
+            "from": 45,
+            "to": 189,
+            "text": "ALIGN Pay checks PayPal again, then refunds through its own PayPal client, with"
+          },
+          {
+            "from": 189,
+            "to": 263,
+            "text": "the decision key written onto the refund."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 39,
+            "to": 99,
+            "x": 402,
+            "y": -143.015625,
+            "w": 1116,
+            "h": 57.03125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "verified",
+        "kind": "segment",
+        "durationInFrames": 200,
+        "video": "scenes/verified.mp4",
+        "audio": "audio/verified.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 148,
+            "text": "PayPal's signed webhook confirms the refund settled, and the customer sees the"
+          },
+          {
+            "from": 148,
+            "to": 178,
+            "text": "PayPal refund id."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 46,
+            "to": 106,
+            "x": 402,
+            "y": 100.984375,
+            "w": 629.984375,
+            "h": 228.125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "ben",
+        "kind": "segment",
+        "durationInFrames": 285,
+        "video": "scenes/ben.mp4",
+        "audio": "audio/ben.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 75,
+            "text": "Ben already had a refund this month."
+          },
+          {
+            "from": 75,
+            "to": 214,
+            "text": "The owner allows one in thirty days, so the agent is blocked, and it tells Ben"
+          },
+          {
+            "from": 214,
+            "to": 263,
+            "text": "to email the owner instead."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 40,
+            "to": 100,
+            "x": 402,
+            "y": -143.015625,
+            "w": 1116,
+            "h": 57.03125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "chen",
+        "kind": "segment",
+        "durationInFrames": 510,
+        "video": "scenes/chen.mp4",
+        "audio": "audio/chen.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 123,
+            "text": "Chen's café wants an invoice at twenty percent off, net thirty."
+          },
+          {
+            "from": 123,
+            "to": 254,
+            "text": "The owner's rule is net fifteen and at most ten percent, so it is blocked."
+          },
+          {
+            "from": 254,
+            "to": 397,
+            "text": "At ten percent and net fifteen, the invoice is created, and sending it waits for"
+          },
+          {
+            "from": 397,
+            "to": 488,
+            "text": "the owner, because it is over two thousand dollars."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 46,
+            "to": 106,
+            "x": 402,
+            "y": 100.984375,
+            "w": 629.984375,
+            "h": 228.125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "injection",
+        "kind": "segment",
+        "durationInFrames": 274,
+        "video": "scenes/injection.mp4",
+        "audio": "audio/injection.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 138,
+            "text": "And when a customer tells the agent to ignore its rules, nothing changes."
+          },
+          {
+            "from": 138,
+            "to": 252,
+            "text": "The limits live outside the chat, and the facts come from PayPal."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 40,
+            "to": 100,
+            "x": 402,
+            "y": -143.015625,
+            "w": 1116,
+            "h": 57.03125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "audit",
+        "kind": "segment",
+        "durationInFrames": 410,
+        "video": "scenes/audit.mp4",
+        "audio": "audio/audit.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 91,
+            "text": "The audit pulls every transaction from PayPal."
+          },
+          {
+            "from": 91,
+            "to": 236,
+            "text": "Each refund and invoice traces back to a decision, through the action that made it."
+          },
+          {
+            "from": 236,
+            "to": 387,
+            "text": "The refund someone made directly in PayPal has no decision behind it, so it is flagged."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 46,
+            "to": 106,
+            "x": 402,
+            "y": 100.984375,
+            "w": 629.984375,
+            "h": 228.125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "integration",
+        "kind": "segment",
+        "durationInFrames": 386,
+        "video": "scenes/integration.mp4",
+        "audio": "audio/integration.wav",
+        "audioDelayFrames": 11,
+        "captions": [
+          {
+            "from": 11,
+            "to": 116,
+            "text": "Wrap your PayPal Agent Toolkit tools in three lines."
+          },
+          {
+            "from": 116,
+            "to": 235,
+            "text": "The model proposes, a person confirms, plain code enforces."
+          },
+          {
+            "from": 235,
+            "to": 363,
+            "text": "ALIGN Pay is open source, and runs in the PayPal sandbox today."
+          }
+        ],
+        "callouts": [
+          {
+            "from": 39,
+            "to": 99,
+            "x": 402,
+            "y": -143.015625,
+            "w": 1116,
+            "h": 57.03125,
+            "label": "A callout"
+          }
+        ]
+      },
+      {
+        "id": "end",
+        "kind": "end",
+        "durationInFrames": 165,
+        "captions": [],
+        "callouts": []
+      }
+    ]
+  }
+}

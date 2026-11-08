@@ -4,13 +4,16 @@ import { REPO_ROOT } from "@/server/runtime";
 
 export const dynamic = "force-dynamic";
 
-export default function HowItWorks() {
-  let svg = "";
+function architectureSvg(): string {
   try {
-    svg = readFileSync(/*turbopackIgnore: true*/ join(REPO_ROOT, "docs", "architecture.svg"), "utf8");
+    return readFileSync(/*turbopackIgnore: true*/ join(REPO_ROOT, "docs", "architecture.svg"), "utf8");
   } catch {
-    svg = "";
+    return "";
   }
+}
+
+export default function HowItWorks() {
+  const svg = architectureSvg();
   return (
     <>
       <div className="eyebrow">How it works</div>
