@@ -3,7 +3,8 @@
  * falling back to macOS `say` with the best installed English voice. Output: scripts/video/work/audio/<id>.wav.
  */
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { REPO_ROOT, loadEnv } from "../lib/env";
 import { SCENES, type Scene } from "./scenes";
@@ -77,16 +78,36 @@ function macSay(text: string, file: string): string {
   return `say:${voice}`;
 }
 
-export async function narrate(scenes: Scene[]): Promise<Record<string, { seconds: number; engine: string }>> {
-  const out: Record<string, { seconds: number; engine: string }> = {};
+type Clip = { seconds: number; engine: string; text?: string };
+
+/**
+ * Resumable: a clip already made from the same text by the same engine is kept (a free key allows about ten TTS
+ * requests a day), so the narration can be finished on another day without mixing voices.
+ */
+export async function narrate(scenes: Scene[]): Promise<Record<string, Clip>> {
+  const manifest = join(OUT, "narration.json");
+  const prev: Record<string, Clip> = existsSync(manifest) ? (JSON.parse(readFileSync(manifest, "utf8")) as Record<string, Clip>) : {};
+  const wantEngine = process.argv.includes("--say") ? "say:" : `gemini:${MODELS[0]}:${VOICE}`;
+  const out: Record<string, Clip> = {};
   for (const s of scenes) {
     const file = join(OUT, `${s.id}.wav`);
+    const hash = createHash("sha256").update(s.narration).digest("hex").slice(0, 16);
+    const p = prev[s.id];
+    if (p && p.text === hash && p.engine.startsWith(wantEngine) && existsSync(file)) {
+      out[s.id] = p;
+      console.log(`  ${s.id}: kept (${p.seconds.toFixed(1)} s, ${p.engine})`);
+      continue;
+    }
     const engine = process.argv.includes("--say") ? macSay(s.narration, file) : await gemini(s.narration, file);
-    if (!engine) throw new Error(`Gemini text-to-speech did not answer for ${s.id}; try again later, or use --say for the macOS voice throughout.`);
-    out[s.id] = { seconds: seconds(file), engine };
+    if (!engine) {
+      writeFileSync(manifest, JSON.stringify({ ...prev, ...out }, null, 2));
+      throw new Error(`Gemini text-to-speech did not answer for ${s.id} (daily limit?). Run again later: finished clips are kept.`);
+    }
+    out[s.id] = { seconds: seconds(file), engine, text: hash };
+    writeFileSync(manifest, JSON.stringify({ ...prev, ...out }, null, 2));
     console.log(`  ${s.id}: ${out[s.id]!.seconds.toFixed(1)} s (${engine})`);
   }
-  writeFileSync(join(OUT, "narration.json"), JSON.stringify(out, null, 2));
+  writeFileSync(manifest, JSON.stringify(out, null, 2));
   return out;
 }
 
