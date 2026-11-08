@@ -75,7 +75,7 @@ export async function syncPolicies(a: {
           p.draftedBy = dr.model;
           p.draftedAt = now().toISOString();
         } catch (e) {
-          p.note = `Drafting failed: ${(e as Error).message.slice(0, 200)}. Use Sync again to retry.`;
+          p.note = `Drafting failed: ${(e as Error).message.slice(0, 200)}. Click "Sync with the ledger" to try again.`;
           log.warn("drafting failed", { decision: d.key, error: (e as Error).message.slice(0, 200) });
         }
       }

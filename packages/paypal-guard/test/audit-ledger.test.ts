@@ -62,7 +62,8 @@ describe("audit", () => {
       webhookEvents: [],
     });
     expect(r.rows[0]!.cls).toBe("webhook_verified");
-    expect(r.rows[0]!.label).toBe("webhook verified, awaiting PayPal's listing");
+    expect(r.rows[0]!.label).toBe("traced to AL-11 via action alp_01JTEST0000000000000000001");
+    expect(r.rows[0]!.note).toBe("webhook verified, awaiting PayPal's listing");
   });
 
   it("a webhook refund with no action behind it is untraced before PayPal lists it", () => {

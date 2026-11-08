@@ -104,6 +104,6 @@ console.log(`
   │ ${state?.ledger.label ?? "Ledger: unknown"}${state?.ledger.note ? ` (${state.ledger.note})` : ""}
   │ ${webhookLine}
   │ Fictional store · PayPal sandbox · no real money
-  │ Open the page, click "Start a demo". Ctrl+C stops everything.
+  │ Open the page: "Review and confirm the store's rules", then "Start a demo". Ctrl+C stops everything.
   └──────────────────────────────────────────────────────────────
 `);

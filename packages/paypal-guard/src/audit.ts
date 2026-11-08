@@ -130,12 +130,12 @@ export function classifyAudit(i: AuditInput): AuditReport {
       kind: "refund",
       amountUsd: a.amountUsd !== undefined ? -a.amountUsd : null,
       cls: a.webhookVerifiedAt ? "webhook_verified" : "awaiting",
-      label: a.webhookVerifiedAt ? "webhook verified, awaiting PayPal's listing" : "recorded by ALIGN Pay, awaiting PayPal's listing",
+      label: traced(a),
       decisionKey: a.decisionKey,
       actionId: a.id,
       orderId: a.orderId ?? null,
       source: a.webhookVerifiedAt ? "webhook" : "ALIGN Pay",
-      note: `${traced(a)}${overdue ? " · older than three hours and still not listed" : ""}`,
+      note: `${a.webhookVerifiedAt ? "webhook verified, awaiting PayPal's listing" : "awaiting PayPal's listing"}${overdue ? " · older than three hours and still not listed" : ""}`,
     });
   }
 

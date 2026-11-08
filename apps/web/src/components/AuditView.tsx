@@ -7,8 +7,8 @@ const CLASS_LABEL: Record<string, string> = {
   traced: "traced",
   untraced: "untraced",
   incoming: "incoming",
-  webhook_verified: "webhook verified",
-  awaiting: "awaiting listing",
+  webhook_verified: "traced · awaiting listing",
+  awaiting: "traced · awaiting listing",
   other: "other",
 };
 
