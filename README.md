@@ -131,6 +131,13 @@ paypal_id?}`; money-moving tools the guard does not cover (`pay_order`, `accept_
 removed; and a tool missing from the classification table is held on every call. The toolkit's own AI SDK adapter
 targets AI SDK 4, so ALIGN Pay wraps its tool definitions for AI SDK 6 itself.
 
+## For coding agents: the MCP proxy
+
+`packages/mcp-guard` is an MCP server in front of PayPal's own MCP server (`@paypal/mcp`, sandbox). Claude Code,
+Cursor or any MCP client gets PayPal's read tools as they are, refunds and invoices through the same guard (a hold
+shows up on the owner page), and no money-moving tool the guard does not cover. Setup:
+[packages/mcp-guard/README.md](packages/mcp-guard/README.md).
+
 ## Tests
 
 ```sh
@@ -144,6 +151,7 @@ pnpm judge                                 # a fresh clone, fixtures mode, the t
 
 ```
 packages/paypal-guard/   the guard: actions, classification, limits, engine, facts, execution, ledger, stores, audit
+packages/mcp-guard/      the MCP proxy in front of PayPal's MCP server
 apps/web/                the Next.js app: store, support desk, owner page, audit, how it works
 ledger/fixtures.json     the four decisions for people without ALIGN
 scripts/                 pnpm demo, the tunnel and webhook, seed data, end-to-end run, screenshots, the video
@@ -158,8 +166,9 @@ submission/              the hackathon's gallery, thumbnail, overview PDF and vi
   PayPal's listing" until it does.
 - **USD only.** Anything else is held.
 - Webhooks need `cloudflared`; without it, the receipt cards and audit read PayPal directly instead.
-- Not built yet: an MCP proxy in front of PayPal's MCP server, and a live sandbox dispute in the demo (open-dispute
-  blocking is enforced and unit-tested).
+- The demo has no live sandbox dispute: blocking a refund on an order with an open dispute is enforced and
+  unit-tested, but not shown live.
+- Through the MCP proxy, invoices are held: an invoice needs a store customer, and a coding agent has none.
 
 ## Licence
 

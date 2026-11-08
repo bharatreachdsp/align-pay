@@ -31,7 +31,7 @@ export interface GuardedToolOutput {
   next_step?: string;
 }
 
-const GUARD_NOTE =
+export const GUARD_NOTE =
   " ALIGN Pay checks this call against the store owner's confirmed decisions using PayPal's own records. The result says allowed, held (waiting for the owner) or blocked, with the decision key; report it to the customer as it is.";
 
 export const RefundOrderInput = z.object({
@@ -48,7 +48,8 @@ export const RefundOrderInput = z.object({
 export const REFUND_ORDER_DESCRIPTION =
   "Refund all or part of a customer's order in PayPal. Use the order id from list_customer_orders." + GUARD_NOTE;
 
-function toAction(name: string, type: ActionType, input: Record<string, unknown>, ctx: GuardContext): Action {
+/** Turns one tool call into an Action. Only well-formed PayPal ids survive; amounts are what the agent asked. */
+export function actionFromToolCall(name: string, type: ActionType, input: Record<string, unknown>, ctx: GuardContext): Action {
   const base = {
     id: newActionId(),
     type,
@@ -87,7 +88,7 @@ function toAction(name: string, type: ActionType, input: Record<string, unknown>
   }
 }
 
-const toOutput = (r: GuardResult): GuardedToolOutput => ({
+export const toolOutput = (r: GuardResult): GuardedToolOutput => ({
   status: r.status,
   decision_key: r.key,
   reason: r.reason,
@@ -131,7 +132,7 @@ export function withAlignGuard(tools: Record<string, ToolkitTool>, guard: Guard,
   out.refund_order = tool({
     description: REFUND_ORDER_DESCRIPTION,
     inputSchema: RefundOrderInput,
-    execute: async (input) => toOutput(await guard.handle(toAction("refund_order", "refund.create", input, ctx))),
+    execute: async (input) => toolOutput(await guard.handle(actionFromToolCall("refund_order", "refund.create", input, ctx))),
   });
 
   for (const [name, t] of Object.entries(tools)) {
@@ -160,7 +161,7 @@ export function withAlignGuard(tools: Record<string, ToolkitTool>, guard: Guard,
         description: (t.description ?? name).trim() + GUARD_NOTE,
         inputSchema: name === "create_invoice" ? invoiceSchemaWithTerms(params) : asSchema(params as never),
         execute: async (input: unknown) =>
-          toOutput(await guard.handle(toAction(name, c.action, (input ?? {}) as Record<string, unknown>, ctx))),
+          toolOutput(await guard.handle(actionFromToolCall(name, c.action, (input ?? {}) as Record<string, unknown>, ctx))),
       });
       continue;
     }
@@ -168,7 +169,7 @@ export function withAlignGuard(tools: Record<string, ToolkitTool>, guard: Guard,
     out[name] = tool({
       description: t.description ?? name,
       inputSchema: asSchema(params as never),
-      execute: async (input: unknown) => toOutput(await guard.handleUnknownTool(name, input, ctx)),
+      execute: async (input: unknown) => toolOutput(await guard.handleUnknownTool(name, input, ctx)),
     });
   }
   return out;

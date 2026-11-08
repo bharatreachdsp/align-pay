@@ -1,0 +1,24 @@
+{
+  "name": "@align-agent/mcp-guard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An MCP proxy in front of PayPal's MCP server: money-moving tool calls go through the ALIGN Pay guard.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@align-agent/paypal-guard": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@paypal/mcp": "1.8.1",
+    "tsx": "4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "eslint": "10.14.0",
+    "typescript": "6.0.3"
+  }
+}

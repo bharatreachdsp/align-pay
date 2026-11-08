@@ -73,6 +73,31 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
+  packages/mcp-guard:
+    dependencies:
+      '@align-agent/paypal-guard':
+        specifier: workspace:*
+        version: link:../paypal-guard
+      '@modelcontextprotocol/sdk':
+        specifier: 1.32.2
+        version: 1.32.2(zod@4.6.7)
+      '@paypal/mcp':
+        specifier: 1.8.1
+        version: 1.8.1(zod@4.6.7)
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
+    devDependencies:
+      '@types/node':
+        specifier: 22.20.5
+        version: 22.20.5
+      eslint:
+        specifier: 10.14.0
+        version: 10.14.0
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
   packages/paypal-guard:
     dependencies:
       '@ai-sdk/google':
@@ -112,6 +137,9 @@ importers:
       '@align-agent/paypal-guard':
         specifier: workspace:*
         version: link:../packages/paypal-guard
+      '@modelcontextprotocol/sdk':
+        specifier: 1.32.2
+        version: 1.32.2(zod@4.6.7)
       playwright:
         specifier: 1.65.0
         version: 1.65.0
@@ -1016,6 +1044,11 @@ packages:
   '@paypal/agent-toolkit@1.11.0':
     resolution: {integrity: sha512-wfjOaF67uuBRtyc3wapD+0xbfMbo0Zje/HzmYsqOkonULh1aXs4b8N1UD+6Iy2AIQ/yPs7DtKU1Upc9F87KmOg==}
 
+  '@paypal/mcp@1.8.1':
+    resolution: {integrity: sha512-5r0TGkIhg66TSErwoLxatZbPHWjPnLQBHxoRG9vpobPRyzLF0tt2F8ca3Ca18SdfR8I32Usps7pzd/RuAF1Lsg==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   '@paypal/paypal-server-sdk@1.1.0':
     resolution: {integrity: sha512-MaJQmSVpQb5nEeZWZDTtGRxeaHj6O51G9Olmm3zQ5E4XNgR4emAI08CKC2ZPhBldVoxAoBVjLyvKjGV5lC1n2Q==}
     engines: {node: '>=14.17.0'}
@@ -1792,6 +1825,10 @@ packages:
 
   client-zip@2.5.1:
     resolution: {integrity: sha512-yOvNSBsQX1B7wtdvIVXJEIIShrlPiX+adhli7sWvQhsx3nX1DjvpSt+AwOxaX+3DCsT/Yx0nRy5hIjRLIYfebw==}
+
+  colors@1.4.0:
+    resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==}
+    engines: {node: '>=0.1.90'}
 
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
@@ -4145,6 +4182,22 @@ snapshots:
     transitivePeerDependencies:
       - openai
 
+  '@langchain/core@0.3.6(openai@4.86.1(zod@3.25.76))':
+    dependencies:
+      ansi-styles: 5.2.0
+      camelcase: 6.3.0
+      decamelize: 1.2.0
+      js-tiktoken: 1.0.21
+      langsmith: 0.1.68(openai@4.86.1(zod@3.25.76))
+      mustache: 4.2.0
+      p-queue: 6.6.2
+      p-retry: 4.6.2
+      uuid: 10.0.0
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.2(zod@3.25.76)
+    transitivePeerDependencies:
+      - openai
+
   '@mediabunny/aac-encoder@1.64.0(mediabunny@1.64.0)':
     dependencies:
       mediabunny: 1.64.0
@@ -4240,6 +4293,28 @@ snapshots:
 
   '@oxc-project/types@0.156.0': {}
 
+  '@paypal/agent-toolkit@1.11.0':
+    dependencies:
+      os: 0.1.2
+      '@dotenvx/dotenvx': 1.75.1
+      '@langchain/core': 0.3.6(openai@4.86.1(zod@3.25.76))
+      '@modelcontextprotocol/sdk': 1.32.2(zod@3.25.76)
+      '@paypal/paypal-server-sdk': 1.1.0(debug@4.4.3)
+      ai: 4.3.19(react@19.3.1)(zod@3.25.76)
+      axios: 1.21.0(debug@4.4.3)
+      debug: 4.4.3
+      fast-json-patch: 3.1.1
+      lodash: 4.18.1
+      mathjs: 14.9.1
+      openai: 4.86.1(ws@8.21.0)(zod@3.25.76)
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - encoding
+      - react
+      - supports-color
+      - ws
+
   '@paypal/agent-toolkit@1.11.0(react@19.3.1)(ws@8.21.0)':
     dependencies:
       os: 0.1.2
@@ -4262,6 +4337,19 @@ snapshots:
       - supports-color
       - ws
 
+  '@paypal/mcp@1.8.1(zod@4.6.7)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.32.2(zod@4.6.7)
+      '@paypal/agent-toolkit': 1.11.0
+      colors: 1.4.0
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - encoding
+      - react
+      - supports-color
+      - ws
+      - zod
+
   '@paypal/paypal-server-sdk@1.1.0(debug@4.4.3)':
     dependencies:
       '@apimatic/authentication-adapters': 0.5.14
@@ -4280,13 +4368,13 @@ snapshots:
       '@remotion/timeline-utils': 4.0.541(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@rspack/core': 2.3.0(@swc/helpers@0.5.23)
       '@rspack/plugin-react-refresh': 2.0.2(@rspack/core@2.3.0(@swc/helpers@0.5.23))(react-refresh@0.18.0)
-      css-loader: 7.1.4(@rspack/core@2.3.0(@swc/helpers@0.5.23))(webpack@5.105.0(postcss@8.5.32))
+      css-loader: 7.1.4(@rspack/core@2.3.0(@swc/helpers@0.5.23))(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.32))
       esbuild: 0.28.1
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       react-refresh: 0.18.0
       remotion: 4.0.541(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      style-loader: 4.0.0(webpack@5.105.0(postcss@8.5.32))
+      style-loader: 4.0.0(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.32))
       webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.32)
     transitivePeerDependencies:
       - '@minify-html/node'
@@ -5204,6 +5292,8 @@ snapshots:
 
   client-zip@2.5.1: {}
 
+  colors@1.4.0: {}
+
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
@@ -5261,7 +5351,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-loader@7.1.4(@rspack/core@2.3.0(@swc/helpers@0.5.23))(webpack@5.105.0(postcss@8.5.32)):
+  css-loader@7.1.4(@rspack/core@2.3.0(@swc/helpers@0.5.23))(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.32)):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.32)
       postcss: 8.5.32
@@ -5877,6 +5967,17 @@ snapshots:
     optionalDependencies:
       openai: 4.86.1(ws@8.21.0)(zod@4.6.7)
 
+  langsmith@0.1.68(openai@4.86.1(zod@3.25.76)):
+    dependencies:
+      '@types/uuid': 10.0.0
+      commander: 10.0.1
+      p-queue: 6.6.2
+      p-retry: 4.6.2
+      semver: 7.8.6
+      uuid: 10.0.0
+    optionalDependencies:
+      openai: 4.86.1(ws@8.21.0)(zod@3.25.76)
+
   levn@0.4.1:
     dependencies:
       prelude-ls: 1.2.1
@@ -6099,6 +6200,21 @@ snapshots:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
+
+  openai@4.86.1(ws@8.21.0)(zod@3.25.76):
+    dependencies:
+      '@types/node': 18.19.130
+      '@types/node-fetch': 2.6.13
+      abort-controller: 3.0.0
+      agentkeepalive: 4.6.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+    optionalDependencies:
+      ws: 8.21.0
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - encoding
 
   openai@4.86.1(ws@8.21.0)(zod@4.6.7):
     dependencies:
@@ -6484,7 +6600,7 @@ snapshots:
 
   strip-final-newline@2.0.0: {}
 
-  style-loader@4.0.0(webpack@5.105.0(postcss@8.5.32)):
+  style-loader@4.0.0(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.32)):
     dependencies:
       webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.32)
 
