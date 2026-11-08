@@ -123,8 +123,13 @@ export class Guard {
     return this.d.now ? this.d.now() : new Date();
   }
 
-  /** One operation per action id at a time: a double click or a retried request cannot execute twice. */
-  private async exclusive<T>(id: string, fn: () => Promise<T>): Promise<T> {
+  /**
+   * Money actions run one at a time, whatever their id: a second refund reads PayPal's facts only after the first has
+   * executed, so two parallel tool calls cannot both fit under a limit meant for one. A double click or a retried
+   * request on the same action cannot execute twice either.
+   */
+  private async exclusive<T>(_id: string, fn: () => Promise<T>): Promise<T> {
+    const id = "money";
     while (this.locks.has(id)) await this.locks.get(id)!.catch(() => {});
     const p = fn();
     this.locks.set(id, p);

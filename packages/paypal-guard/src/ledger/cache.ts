@@ -33,7 +33,11 @@ export async function syncLedger(a: {
         return { snapshot: snap, reason: null };
       }
       a.log.warn("ALIGN answered, but none of the store's rules are recorded there as confirmed decisions");
-      if (a.preference === "align") return { snapshot: null, reason: "ALIGN answered, but the store's rules are not recorded there" };
+      if (a.preference === "align") {
+        // The decisions are gone from ALIGN (revoked or never recorded): the old copy must not keep allowing things.
+        a.store.clearLedgerSnapshot();
+        return { snapshot: null, reason: "ALIGN answered, but the store's rules are not recorded there" };
+      }
     } catch (e) {
       const why = (e as Error).message.slice(0, 200);
       a.log.warn("ALIGN did not answer", { why });

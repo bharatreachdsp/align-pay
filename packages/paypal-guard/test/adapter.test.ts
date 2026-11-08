@@ -59,7 +59,7 @@ describe("withAlignGuard", () => {
     const { guard } = makeGuard(refundFacts());
     const tools = withAlignGuard(tk.getTools() as unknown as Record<string, ToolkitTool>, guard, { log: silentLogger });
     expect(Object.keys(tools).sort()).toEqual(
-      ["cancel_sent_invoice", "create_invoice", "get_dispute", "get_invoice", "get_order", "get_refund", "list_disputes", "list_invoices", "refund_order", "send_invoice"].sort(),
+      ["cancel_sent_invoice", "create_invoice", "get_invoice", "get_order", "refund_order", "send_invoice"].sort(),
     );
   });
 
@@ -76,7 +76,7 @@ describe("withAlignGuard", () => {
 
   it("an id the agent made up never reaches PayPal unchecked", async () => {
     const { guard } = makeGuard(refundFacts());
-    const tools = withAlignGuard({}, guard, { log: silentLogger });
+    const tools = withAlignGuard({}, guard, { customerId: "asha-T3ST", log: silentLogger });
     const out = (await exec(tools.refund_order, { order_id: "../../v1/payouts", amount_usd: 1 })) as Record<string, unknown>;
     expect(out.status).not.toBe("allowed");
   });

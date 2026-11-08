@@ -16,6 +16,7 @@ export type VerdictCode =
   | "currency"
   | "not_customer_order"
   | "unknown_customer"
+  | "no_customer"
   | "invalid_request"
   | "unknown_tool";
 
@@ -112,7 +113,9 @@ function refundGuardChecks(action: Action, f: RefundFacts): { checks: CheckResul
   if (f.currency !== "USD") {
     checks.push(guardCheck("currency", "hold", "currency", "Only USD orders are handled automatically.", { currency: f.currency }));
   }
-  if (action.customerId) {
+  if (!action.customerId) {
+    checks.push(guardCheck("customer", "hold", "no_customer", "No customer is attached to this request, so the owner has to look."));
+  } else {
     if (!f.customerId) {
       checks.push(
         guardCheck("customer", "hold", "unknown_customer", "PayPal's order carries no store customer, so the owner has to look.", {
@@ -159,7 +162,9 @@ function invoiceGuardChecks(action: Action, f: InvoiceFacts): CheckResult[] {
   } else if (f.currency !== "USD") {
     checks.push(guardCheck("currency", "hold", "currency", "Only USD invoices are handled automatically.", { currency: f.currency }));
   }
-  if (action.customerId && f.totalUsd !== null) {
+  if (!action.customerId) {
+    checks.push(guardCheck("customer", "hold", "no_customer", "No customer is attached to this request, so the owner has to look."));
+  } else if (f.totalUsd !== null) {
     if (!f.recipientCustomerId) {
       checks.push(guardCheck("customer", "hold", "unknown_customer", "The invoice is not addressed to a known store customer."));
     } else if (f.recipientCustomerId !== action.customerId) {
@@ -299,10 +304,11 @@ export function evaluate(action: Action, facts: Facts, policies: Policy[], now: 
     }
   }
 
-  // An approval lifts holds that exist because a person had to look (hold rules, nobody decided). It never lifts a
-  // block, and never a hold caused by missing facts, a missing ledger or an unknown customer.
+  // An approval lifts holds that exist because a person had to look (hold rules, nobody decided, no or unknown
+  // customer). It never lifts a block, and never a hold caused by missing facts, a missing ledger or another currency.
+  const APPROVABLE: VerdictCode[] = ["rule_hold", "no_decision", "no_customer", "unknown_customer"];
   const effective = results.map((r) =>
-    opts.approved && r.outcome === "hold" && (r.code === "rule_hold" || r.code === "no_decision")
+    opts.approved && r.outcome === "hold" && APPROVABLE.includes(r.code)
       ? { ...r, outcome: "allow" as const, reason: `${r.reason} The owner approved it.` }
       : r,
   );

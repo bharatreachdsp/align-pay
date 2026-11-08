@@ -1,4 +1,14 @@
-import { SUPPORT_AGENT_TOOLKIT_ACTIONS, type ToolkitTool, usd, withAlignGuard } from "@align-agent/paypal-guard";
+import {
+  SUPPORT_AGENT_TOOLKIT_ACTIONS,
+  type ToolkitTool,
+  getInvoice,
+  getOrder,
+  invoiceFactsOf,
+  orderMoney,
+  safePayPalId,
+  usd,
+  withAlignGuard,
+} from "@align-agent/paypal-guard";
 import { PayPalAgentToolkit } from "@paypal/agent-toolkit/ai-sdk";
 import { type ToolSet, tool } from "ai";
 import { z } from "zod";
@@ -27,6 +37,44 @@ export function supportTools(customerId: string, scenarioId: string | undefined)
     requestedBy: "support-agent",
     log: rt.log,
   });
+  // The toolkit's read tools take any id. The support agent may only read this customer's own order or invoice, so
+  // these two keep the toolkit's names and schemas but read through ALIGN Pay's client and check the owner first.
+  const notYours = { error: "That is not one of this customer's orders or invoices." };
+  if (guarded.get_order) {
+    guarded.get_order = tool({
+      description: guarded.get_order.description ?? "Get an order",
+      inputSchema: z.object({ id: z.string() }),
+      execute: async ({ id }) => {
+        const safe = safePayPalId(id);
+        if (!safe) return notYours;
+        try {
+          const o = await getOrder(rt.paypal, safe);
+          const m = orderMoney(o);
+          if (m.customId !== customerId) return notYours;
+          return { id: o.id, status: o.status, captured: usd(m.capturedUsd), refunded: usd(m.refundedUsd), left_to_refund: usd(m.remainingUsd), created: o.create_time };
+        } catch {
+          return { error: "PayPal did not answer this lookup." };
+        }
+      },
+    });
+  }
+  if (guarded.get_invoice) {
+    guarded.get_invoice = tool({
+      description: guarded.get_invoice.description ?? "Get an invoice",
+      inputSchema: z.object({ invoice_id: z.string() }),
+      execute: async ({ invoice_id }) => {
+        const safe = safePayPalId(invoice_id);
+        if (!safe) return notYours;
+        try {
+          const f = invoiceFactsOf(await getInvoice(rt.paypal, safe));
+          if (!f.recipientEmail || rt.directory.customerByEmail(f.recipientEmail)?.id !== customerId) return notYours;
+          return { id: safe, status: f.status, total: f.totalUsd === null ? null : usd(f.totalUsd), terms: f.termType, discount_percent: f.discountPct };
+        } catch {
+          return { error: "PayPal did not answer this lookup." };
+        }
+      },
+    });
+  }
   return {
     ...guarded,
     list_customer_orders: tool({

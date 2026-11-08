@@ -11,7 +11,7 @@ export function hasCloudflared(): boolean {
 
 export function startTunnel(port: number, timeoutMs = 45_000): Promise<{ url: string; child: ChildProcess }> {
   return new Promise((resolve, reject) => {
-    const child = spawn("cloudflared", ["tunnel", "--no-autoupdate", "--url", `http://localhost:${port}`], {
+    const child = spawn("cloudflared", ["tunnel", "--no-autoupdate", "--url", `http://127.0.0.1:${port}`], {
       stdio: ["ignore", "pipe", "pipe"],
     });
     const timer = setTimeout(() => {

@@ -90,7 +90,5 @@ export function classifyTool(name: string): ToolClass | { class: "unknown" } {
 /** The toolkit configuration ALIGN Pay gives its support agent: the read tools it needs plus the guarded ones. */
 export const SUPPORT_AGENT_TOOLKIT_ACTIONS = {
   orders: { get: true },
-  invoices: { create: true, list: true, get: true, send: true, cancel: true },
-  disputes: { list: true, get: true },
-  payments: { getRefunds: true },
+  invoices: { create: true, get: true, send: true, cancel: true },
 } as const;

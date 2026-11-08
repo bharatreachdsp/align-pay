@@ -13,9 +13,13 @@ export async function POST(req: Request) {
   const rt = runtime();
   await rt.ready;
   if (!rt.pro) return Response.json({ error: "The support agent needs a Gemini key (GOOGLE_GENERATIVE_AI_API_KEY in .env)." }, { status: 503 });
+  // Only the current demo's customers can be chatted as.
+  const scenario = currentScenario();
   const customer = rt.directory.customer(who.data.customerId);
-  if (!customer) return Response.json({ error: "Unknown customer." }, { status: 400 });
-  const tools = supportTools(customer.id, currentScenario()?.id);
+  if (!customer || !scenario || !Object.values(scenario.customers).includes(customer.id)) {
+    return Response.json({ error: "That customer is not part of the current demo. Start a demo first." }, { status: 400 });
+  }
+  const tools = supportTools(customer.id, scenario.id);
   const result = streamText({
     model: rt.pro,
     system: systemPrompt(customer),

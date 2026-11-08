@@ -103,7 +103,8 @@ everything runs in the **PayPal sandbox** and no real money moves.
    6. **Audit:** **Run audit now**. Refunds and invoices trace to their decisions; a refund made directly in PayPal is
       **untraced**.
 
-`pnpm demo` refuses to start unless `PAYPAL_ENV=sandbox`. Reset on the home page clears the local demo data
+`pnpm demo` refuses to start unless `PAYPAL_ENV=sandbox`. The app listens on 127.0.0.1 only; the tunnel accepts
+nothing but PayPal's webhook, and cross-site requests are refused. Reset on the home page clears the local demo data
 (`.data/`); policies and their confirmations stay.
 
 ### Fixtures mode and ALIGN mode
@@ -168,7 +169,7 @@ submission/              the hackathon's gallery, thumbnail, overview PDF and vi
 - Webhooks need `cloudflared`; without it, the receipt cards and audit read PayPal directly instead.
 - The demo has no live sandbox dispute: blocking a refund on an order with an open dispute is enforced and
   unit-tested, but not shown live.
-- Through the MCP proxy, invoices are held: an invoice needs a store customer, and a coding agent has none.
+- Through the MCP proxy, refunds and invoices are held for the owner: a coding agent acts for no customer.
 
 ## Licence
 

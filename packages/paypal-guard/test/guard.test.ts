@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { receiptCard } from "../src/receipts";
+import type { Store } from "../src/store/types";
 import { ALL, BEN, daysAgo, invoiceAction, invoiceFacts, makeGuard, refundAction, refundFacts } from "./helpers";
 
 describe("guard.handle", () => {
@@ -44,6 +45,29 @@ describe("guard.handle", () => {
     expect(r1.paypalId).toBe("REFUND1");
     expect(r2.paypalId).toBe("REFUND1");
     expect(r3.paypalId).toBe("REFUND1");
+  });
+
+  it("two different refunds at once cannot both fit under one limit: money actions run one at a time", async () => {
+    const ref: { store?: Store } = {};
+    // Facts as PayPalFacts builds them: refunds ALIGN Pay already executed count toward the order and the customer.
+    const facts = () => {
+      const done = ref.store!.listActions({ type: "refund.create", status: ["executed", "executing"] });
+      const refunded = done.reduce((s, a) => s + (a.amountUsd ?? a.verdict.requestedUsd ?? 0), 0);
+      return refundFacts({
+        customerId: BEN,
+        capturedUsd: 100,
+        refundedUsd: refunded,
+        remainingUsd: 100 - refunded,
+        customerRefunds: done.map((a) => ({ id: a.id, at: a.createdAt, amountUsd: 30, source: "alignpay" as const })),
+      });
+    };
+    const { guard, store, executor } = makeGuard(facts);
+    ref.store = store;
+    const a1 = refundAction({ customerId: BEN, requested: { amountUsd: 30 } });
+    const a2 = refundAction({ customerId: BEN, requested: { amountUsd: 30 } });
+    const results = await Promise.all([guard.handle(a1), guard.handle(a2)]);
+    expect(results.map((r) => r.status).sort()).toEqual(["allowed", "blocked"]);
+    expect(executor.calls).toHaveLength(1);
   });
 
   it("a PayPal failure is recorded as failed, never as allowed", async () => {

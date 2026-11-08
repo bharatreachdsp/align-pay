@@ -66,11 +66,11 @@ describe.skipIf(!ready)("PayPal sandbox", () => {
     const executor = new PayPalExecutor(pp);
     const guard = new Guard({ store, facts, executor, policies: { current: async () => ({ ledger: { available: true }, policies: TEST_POLICIES }) } });
 
-    const f = await facts.facts({ id: newActionId(), type: "refund.create", requestedBy: "test", args: {}, target: { orderId }, requested: {} });
+    const f = await facts.facts({ id: newActionId(), type: "refund.create", requestedBy: "test", customerId: tag, args: {}, target: { orderId }, requested: {} });
     expect(f.kind === "refund" && f.remainingUsd).toBe(30);
     expect(f.kind === "refund" && f.openDisputes).toBe(0);
 
-    const action = { id: newActionId(), type: "refund.create" as const, requestedBy: "sandbox-test", args: {}, target: { orderId }, requested: { amountUsd: 5 } };
+    const action = { id: newActionId(), type: "refund.create" as const, requestedBy: "sandbox-test", customerId: tag, args: {}, target: { orderId }, requested: { amountUsd: 5 } };
     const r = await guard.handle(action);
     expect(r.status).toBe("allowed");
     const refund = await getRefund(pp, r.paypalId!);

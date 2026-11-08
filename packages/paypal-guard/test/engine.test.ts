@@ -185,6 +185,23 @@ describe("injection: agent arguments that disagree with PayPal", () => {
   });
 });
 
+describe("requests with no customer", () => {
+  it("are held (a coding agent acts for no customer), and the owner can approve them", () => {
+    const a = refundAction({ requested: { amountUsd: 5 } });
+    delete a.customerId;
+    const v = evaluate(a, refundFacts(), ALL, NOW);
+    expect(v.outcome).toBe("hold");
+    expect(v.code).toBe("no_customer");
+    expect(evaluate(a, refundFacts(), ALL, NOW, { approved: true }).outcome).toBe("allow");
+  });
+
+  it("still block when a rule blocks", () => {
+    const a = refundAction({ requested: { amountUsd: 5 } });
+    delete a.customerId;
+    expect(evaluate(a, refundFacts({ openDisputes: 1, disputeIds: ["D"] }), ALL, NOW, { approved: true }).outcome).toBe("block");
+  });
+});
+
 describe("approval", () => {
   it("lifts hold rules", () => {
     const v = evaluate(refundAction(), refundFacts(), ALL, NOW, { approved: true });

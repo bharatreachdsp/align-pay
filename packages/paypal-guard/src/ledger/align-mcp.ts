@@ -77,7 +77,7 @@ export function decisionFromGet(key: string, r: CallResult, statements: readonly
       .filter((l) => l.trim().startsWith(">"))
       .map((l) => l.replace(/^\s*>\s?/, "").trim())
       .filter(Boolean);
-    const status = /\bconfirmed\b/i.test(body) ? "confirmed" : "unknown";
+    const status = /\bconfirmed\b/i.test(body) && !/\b(not confirmed|unconfirmed|proposed|rejected|superseded|withdrawn)\b/i.test(body) ? "confirmed" : "unknown";
     return {
       key,
       statement,

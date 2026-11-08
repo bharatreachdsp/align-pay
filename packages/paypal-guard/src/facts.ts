@@ -182,7 +182,8 @@ export function normaliseInvoiceRequest(
       items,
       discountPct,
       termType: term,
-      note: typeof a.note === "string" ? a.note.slice(0, 500) : undefined,
+      // The note PayPal emails to the customer is fixed text; nothing the agent writes goes into it.
+      note: "Wholesale order from Kettle & Kesar, a fictional store in the PayPal sandbox.",
       subtotalUsd: Math.round(subtotal * 100) / 100,
       discountUsd,
       totalUsd: Math.round((subtotal - discountUsd) * 100) / 100,
@@ -263,9 +264,15 @@ export class PayPalFacts implements FactsSource {
     f.captureTime = m.capture?.create_time ?? null;
     f.currency = m.currency;
     if (m.capture) {
+      // Refunds ALIGN Pay executed (or is executing) on this order that PayPal's order does not list yet.
+      const listed = new Set(m.refunds.map((r) => r.id));
+      const pending = this.o.store
+        .listActions({ type: "refund.create", status: ["executed", "executing"] })
+        .filter((a) => a.orderId === orderId && (!a.paypalId || !listed.has(a.paypalId)))
+        .reduce((s, a) => s + (a.amountUsd ?? a.verdict.requestedUsd ?? 0), 0);
       f.capturedUsd = m.capturedUsd;
-      f.refundedUsd = m.refundedUsd;
-      f.remainingUsd = m.remainingUsd;
+      f.refundedUsd = Math.round((m.refundedUsd + pending) * 100) / 100;
+      f.remainingUsd = Math.round((m.remainingUsd - pending) * 100) / 100;
     } else {
       f.missing.push("capture");
     }
@@ -299,9 +306,9 @@ export class PayPalFacts implements FactsSource {
     const add = (r: CustomerRefund) => {
       if (!seen.has(r.id)) seen.set(r.id, r);
     };
-    for (const a of this.o.store.listActions({ type: "refund.create", status: "executed" })) {
-      if ((a.paypalCustomerId ?? a.customerId) === customerId && a.paypalId) {
-        add({ id: a.paypalId, at: a.executedAt ?? a.updatedAt, amountUsd: a.amountUsd ?? null, source: "alignpay" });
+    for (const a of this.o.store.listActions({ type: "refund.create", status: ["executed", "executing"] })) {
+      if ((a.paypalCustomerId ?? a.customerId) === customerId) {
+        add({ id: a.paypalId ?? a.id, at: a.executedAt ?? a.updatedAt, amountUsd: a.amountUsd ?? a.verdict.requestedUsd ?? null, source: "alignpay" });
       }
     }
     const orderIds = new Set(this.o.store.listOrders({ customerId }).map((o) => o.orderId));

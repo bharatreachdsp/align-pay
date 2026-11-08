@@ -95,6 +95,7 @@ export interface Store {
   deletePolicy(key: string): void;
 
   putLedgerSnapshot(s: LedgerSnapshot): void;
+  clearLedgerSnapshot(): void;
   getLedgerSnapshot(): LedgerSnapshot | null;
 
   /** False if the event id was already recorded (webhooks are reconciled once). */

@@ -58,7 +58,8 @@ if (!dev) {
     process.exit(1);
   }
 }
-const app = spawn("pnpm", ["--filter", "@align-pay/web", "exec", "next", dev ? "dev" : "start", "-p", String(port)], {
+// Bound to 127.0.0.1: nothing else on the network can reach it. The tunnel (if any) forwards only PayPal's webhooks.
+const app = spawn("pnpm", ["--filter", "@align-pay/web", "exec", "next", dev ? "dev" : "start", "-H", "127.0.0.1", "-p", String(port)], {
   env,
   stdio: ["ignore", "inherit", "inherit"],
 });
@@ -71,7 +72,7 @@ app.on("exit", (code) => {
 async function waitForApp(): Promise<{ ledger: { label: string; note: string | null } } | null> {
   for (let i = 0; i < 120; i++) {
     try {
-      const r = await fetch(`http://localhost:${port}/api/state`);
+      const r = await fetch(`http://127.0.0.1:${port}/api/state`);
       if (r.ok) return (await r.json()) as { ledger: { label: string; note: string | null } };
     } catch {
       // not up yet

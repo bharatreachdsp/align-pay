@@ -69,6 +69,9 @@ export class DocStore implements Store {
   putLedgerSnapshot(s: LedgerSnapshot) {
     this.db.put("kv", "ledger_snapshot", s);
   }
+  clearLedgerSnapshot() {
+    this.db.del("kv", "ledger_snapshot");
+  }
   getLedgerSnapshot() {
     return clone((this.db.get("kv", "ledger_snapshot") as LedgerSnapshot | undefined) ?? null);
   }

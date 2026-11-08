@@ -728,6 +728,10 @@ footer {
   .customer .small {
     display: none;
   }
+  .customers > p {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
   .chat .log {
     max-height: none;
   }
