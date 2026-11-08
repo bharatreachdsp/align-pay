@@ -81,14 +81,14 @@ export class ModelDrafter implements Drafter {
     const hint = input.hint
       ? `\n\nThe owner already confirmed these exact limits for this decision. If they are a faithful reading of the statement, return them exactly:\n${JSON.stringify(input.hint)}`
       : "";
-    const { output } = await generateText({
+    const { output, response } = await generateText({
       model: this.model,
       system: DRAFTING_SYSTEM,
       prompt: `Decision statement:\n"${input.statement}"\n\nReceipts (exact quotes):\n${quotes}${hint}`,
       output: Output.object({ schema: DraftSchema }),
       temperature: 0,
-      maxRetries: 2,
+      maxRetries: 1,
     });
-    return { limits: normaliseDraft(output), reading: output.reading.trim().slice(0, 800), model: this.modelId };
+    return { limits: normaliseDraft(output), reading: output.reading.trim().slice(0, 800), model: response.modelId || this.modelId };
   }
 }

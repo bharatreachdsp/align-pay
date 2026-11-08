@@ -71,7 +71,7 @@ export function resultOf(rec: ActionRecord): GuardResult {
 function alternativeFor(v: Verdict, facts: Facts, directory?: StoreDirectory): string | undefined {
   if (v.outcome === "hold") return "Tell the customer the owner has been asked and will approve or decline it.";
   if (v.outcome !== "block") return undefined;
-  const hit = v.results.find((r) => r.outcome === "block");
+  const hit = v.results.find((r) => r.outcome === "block" && r.source === "policy") ?? v.results.find((r) => r.outcome === "block");
   switch (hit?.check) {
     case "per_customer_count":
       return `Refuse politely and ask the customer to email the owner at ${directory?.ownerEmail ?? "the store's email address"}.`;

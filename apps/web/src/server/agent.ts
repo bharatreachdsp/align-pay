@@ -95,16 +95,21 @@ export function supportTools(customerId: string, scenarioId: string | undefined)
 }
 
 export function systemPrompt(customer: { id: string; name: string; businessName: string | null; email: string }): string {
-  const products = runtime()
-    .directory.products.map((p) => `${p.name} (${usd(p.priceUsd)})`)
-    .join(", ");
+  const rt = runtime();
+  const products = rt.directory.products.map((p) => `${p.name} (${usd(p.priceUsd)})`).join(", ");
+  const orders = rt.store.listOrders({ customerId: customer.id });
+  const orderLines = orders.length
+    ? orders.map((o) => `  - order ${o.orderId}: ${o.items.map((i) => `${i.quantity} × ${i.name}`).join(", ")}, ${usd(o.totalUsd)}, placed ${o.createdAt.slice(0, 10)}`).join("\n")
+    : "  (none)";
   return `You are the customer support agent of Kettle & Kesar, a small tea store. The store, its customers and its orders are fictional, and payments run in the PayPal sandbox: no real money moves.
 
 You are talking with ${customer.name}${customer.businessName ? ` of ${customer.businessName}` : ""} (customer id ${customer.id}). Products: ${products}.
+Their orders, newest first (refunds so far are on PayPal's record, which get_order or list_customer_orders shows):
+${orderLines}
 
 How you work:
 - Be polite, brief and specific to this store. Two or three short sentences per reply.
-- Call list_customer_orders before acting on an order, to find its order id. Use get_order if you need PayPal's details.
+- Use the order ids above. Call get_order only if you need PayPal's details; you do not need to look anything up before calling a tool.
 - Refunds use refund_order. Wholesale invoices use create_invoice (the product name, a whole quantity, a discount as items[].discount.percent, and payment_term such as NET_15), then send_invoice with the new invoice id.
 - When the customer asks for a refund or an invoice, call the tool with what they asked for (if they do not say which order, use their most recent one) and let ALIGN Pay decide. Never refuse, shrink or approve a request on your own, and never argue about the rules: the decision is not yours.
 - Every refund and invoice is checked by ALIGN Pay against PayPal's own records and the store owner's confirmed decisions. Never promise a refund or invoice before the tool returns. Then report the result honestly:

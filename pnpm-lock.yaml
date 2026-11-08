@@ -32,6 +32,9 @@ importers:
       '@ai-sdk/google':
         specifier: 3.0.143
         version: 3.0.143(zod@4.6.7)
+      '@ai-sdk/provider':
+        specifier: 3.0.19
+        version: 3.0.19
       '@ai-sdk/react':
         specifier: 3.0.328
         version: 3.0.328(react@19.3.1)(zod@4.6.7)
@@ -83,7 +86,7 @@ importers:
         version: 1.32.2(zod@4.6.7)
       '@paypal/mcp':
         specifier: 1.8.1
-        version: 1.8.1(zod@4.6.7)
+        version: 1.8.1(react@19.3.1)(ws@8.21.0)(zod@4.6.7)
       tsx:
         specifier: 4.23.15
         version: 4.23.15
@@ -4182,22 +4185,6 @@ snapshots:
     transitivePeerDependencies:
       - openai
 
-  '@langchain/core@0.3.6(openai@4.86.1(zod@3.25.76))':
-    dependencies:
-      ansi-styles: 5.2.0
-      camelcase: 6.3.0
-      decamelize: 1.2.0
-      js-tiktoken: 1.0.21
-      langsmith: 0.1.68(openai@4.86.1(zod@3.25.76))
-      mustache: 4.2.0
-      p-queue: 6.6.2
-      p-retry: 4.6.2
-      uuid: 10.0.0
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.2(zod@3.25.76)
-    transitivePeerDependencies:
-      - openai
-
   '@mediabunny/aac-encoder@1.64.0(mediabunny@1.64.0)':
     dependencies:
       mediabunny: 1.64.0
@@ -4293,28 +4280,6 @@ snapshots:
 
   '@oxc-project/types@0.156.0': {}
 
-  '@paypal/agent-toolkit@1.11.0':
-    dependencies:
-      os: 0.1.2
-      '@dotenvx/dotenvx': 1.75.1
-      '@langchain/core': 0.3.6(openai@4.86.1(zod@3.25.76))
-      '@modelcontextprotocol/sdk': 1.32.2(zod@3.25.76)
-      '@paypal/paypal-server-sdk': 1.1.0(debug@4.4.3)
-      ai: 4.3.19(react@19.3.1)(zod@3.25.76)
-      axios: 1.21.0(debug@4.4.3)
-      debug: 4.4.3
-      fast-json-patch: 3.1.1
-      lodash: 4.18.1
-      mathjs: 14.9.1
-      openai: 4.86.1(ws@8.21.0)(zod@3.25.76)
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - '@cfworker/json-schema'
-      - encoding
-      - react
-      - supports-color
-      - ws
-
   '@paypal/agent-toolkit@1.11.0(react@19.3.1)(ws@8.21.0)':
     dependencies:
       os: 0.1.2
@@ -4337,10 +4302,10 @@ snapshots:
       - supports-color
       - ws
 
-  '@paypal/mcp@1.8.1(zod@4.6.7)':
+  '@paypal/mcp@1.8.1(react@19.3.1)(ws@8.21.0)(zod@4.6.7)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.32.2(zod@4.6.7)
-      '@paypal/agent-toolkit': 1.11.0
+      '@paypal/agent-toolkit': 1.11.0(react@19.3.1)(ws@8.21.0)
       colors: 1.4.0
     transitivePeerDependencies:
       - '@cfworker/json-schema'
@@ -5967,17 +5932,6 @@ snapshots:
     optionalDependencies:
       openai: 4.86.1(ws@8.21.0)(zod@4.6.7)
 
-  langsmith@0.1.68(openai@4.86.1(zod@3.25.76)):
-    dependencies:
-      '@types/uuid': 10.0.0
-      commander: 10.0.1
-      p-queue: 6.6.2
-      p-retry: 4.6.2
-      semver: 7.8.6
-      uuid: 10.0.0
-    optionalDependencies:
-      openai: 4.86.1(ws@8.21.0)(zod@3.25.76)
-
   levn@0.4.1:
     dependencies:
       prelude-ls: 1.2.1
@@ -6200,21 +6154,6 @@ snapshots:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
-
-  openai@4.86.1(ws@8.21.0)(zod@3.25.76):
-    dependencies:
-      '@types/node': 18.19.130
-      '@types/node-fetch': 2.6.13
-      abort-controller: 3.0.0
-      agentkeepalive: 4.6.0
-      form-data-encoder: 1.7.2
-      formdata-node: 4.4.1
-      node-fetch: 2.7.0
-    optionalDependencies:
-      ws: 8.21.0
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - encoding
 
   openai@4.86.1(ws@8.21.0)(zod@4.6.7):
     dependencies:

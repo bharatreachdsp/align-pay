@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 740" width="1200" height="740" role="img" aria-labelledby="t d">
   <title id="t">ALIGN Pay architecture</title>
-  <desc id="d">A customer chats with a Gemini support agent. Its money-moving tool calls go through the ALIGN Pay guard, which reads facts from PayPal and enforces limits a person confirmed from ALIGN decisions. Allowed actions execute through ALIGN Pay's own PayPal client; held ones wait for the owner; webhooks and Transaction Search feed the audit.</desc>
+  <desc id="d">A customer chats with a Gemini support agent. Its money-moving tool calls go through the ALIGN Pay guard, which reads facts from PayPal and enforces limits the store owner confirmed from ALIGN decisions (a Sample ALIGN ledger by default). Allowed actions execute through ALIGN Pay's own PayPal client; held ones wait for the owner; webhooks and Transaction Search feed the audit.</desc>
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="#4a4038"/>
@@ -71,15 +71,16 @@
 
   <!-- middle row -->
   <rect class="box" x="36" y="300" width="230" height="122" rx="10"/>
-  <text class="h" x="56" y="332">ALIGN ledger</text>
-  <text class="s" x="56" y="356">decisions with exact-quote</text>
-  <text class="s" x="56" y="374">receipts, confirmed by people</text>
-  <text class="m" x="56" y="400">align mcp (read tools)</text>
+  <text class="h" x="56" y="332">ALIGN decisions</text>
+  <text class="s" x="56" y="356">with exact-quote receipts</text>
+  <text class="s" x="56" y="374">Sample ALIGN ledger (default)</text>
+  <text class="s" x="56" y="392">or your workspace, via</text>
+  <text class="m" x="56" y="410">align mcp (read tools)</text>
 
   <rect class="box" x="316" y="300" width="270" height="122" rx="10"/>
   <text class="h" x="336" y="332">Policies</text>
   <text class="s" x="336" y="356">Gemini Pro drafts structured limits</text>
-  <text class="s" x="336" y="375">a person confirms them</text>
+  <text class="s" x="336" y="375">the store owner confirms them</text>
   <text class="s" x="336" y="394">only confirmed limits are enforced</text>
 
   <rect class="box" x="636" y="300" width="230" height="122" rx="10"/>
@@ -125,10 +126,9 @@
   <text class="l" x="884" y="652">Transaction Search</text>
 
   <rect x="36" y="470" width="230" height="96" rx="10" fill="#fffaf1" stroke="#cdbca3" stroke-width="1.5" stroke-dasharray="6 5"/>
-  <text class="h" x="56" y="502" style="font-size:16px">Code guard (optional)</text>
-  <text class="s" x="56" y="526">a PR raising the refund limit</text>
-  <text class="s" x="56" y="545">is flagged by ALIGN's PR check</text>
-  <path class="ln dash" d="M151 426 L 151 466" marker-end="url(#a)"/>
+  <text class="h" x="56" y="502" style="font-size:16px">Customer text is untrusted</text>
+  <text class="s" x="56" y="526">"ignore your rules" changes</text>
+  <text class="s" x="56" y="545">nothing: facts come from PayPal</text>
 
   <text x="36" y="634" style="font: italic 600 20px Fraunces, Georgia, serif; fill:#1f1a16">The model proposes, a person confirms,</text>
   <text x="36" y="662" style="font: italic 600 20px Fraunces, Georgia, serif; fill:#1f1a16">plain code enforces.</text>

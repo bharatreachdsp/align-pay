@@ -83,6 +83,20 @@ describe("the store's scenarios (§8.2)", () => {
     expect(v.reason).toMatch(/\$180/);
   });
 
+  it("Ben's \"$500 now\": the decision that blocks leads, with PayPal's facts alongside", () => {
+    const v = evaluate(
+      refundAction({ customerId: BEN, requested: { amountUsd: 500 } }),
+      refundFacts({ customerId: BEN, capturedUsd: 40, remainingUsd: 40, customerRefunds: [{ id: "R1", at: daysAgo(0), amountUsd: 20, source: "alignpay" }] }),
+      ALL,
+      NOW,
+    );
+    expect(v.outcome).toBe("block");
+    expect(v.primaryKey).toBe("AL-12");
+    expect(v.code).toBe("rule_block");
+    expect(v.reason).toMatch(/already had 1 refund/);
+    expect(v.results.some((r) => r.code === "above_remaining")).toBe(true);
+  });
+
   it("D3: a refund on an order with an open dispute is blocked", () => {
     const v = evaluate(refundAction({ requested: { amountUsd: 20 } }), refundFacts({ openDisputes: 1, disputeIds: ["PP-D-1"] }), ALL, NOW);
     expect(v.outcome).toBe("block");

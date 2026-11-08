@@ -26,8 +26,7 @@ export async function POST(req: Request) {
     messages: await convertToModelMessages(body!.messages!.slice(-30), { tools }),
     tools,
     stopWhen: stepCountIs(8),
-    maxRetries: 2,
-    providerOptions: { google: { thinkingConfig: { thinkingLevel: "low" } } },
+    maxRetries: 1,
   });
   return result.toUIMessageStreamResponse({
     onError: (e) => {

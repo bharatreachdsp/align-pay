@@ -96,7 +96,7 @@ function pdfHtml(): string {
     <div class="brand">${mark(26)}<b>ALIGN<span>Pay</span></b></div>
     <div class="strip">Fictional store · PayPal sandbox · no real money</div>
     <h1>Every refund and invoice your AI agent makes in PayPal traces back to a human decision.</h1>
-    <p class="pitch">ALIGN Pay is an open-source guard between an AI agent and PayPal, built on ALIGN, the decision ledger for teams that build software with AI agents.</p>
+    <p class="pitch">ALIGN Pay is an open-source guard between an AI agent and PayPal, built on ALIGN, the decision ledger for teams that build software with AI agents. The demo reads the store's four rules from a Sample ALIGN ledger in the repository.</p>
     <p class="principle">${PRINCIPLE} The model never decides whether money moves.</p>
     <h2>Architecture</h2>
     ${svg}
@@ -104,7 +104,7 @@ function pdfHtml(): string {
     <ol>
       <li>The support agent (Gemini) calls <b>refund_order</b>. ALIGN Pay turns the call into an action with its own id.</li>
       <li>The guard reads the facts from PayPal, never from the agent: capture, refunds so far, open disputes, the customer's refunds in 30 days.</li>
-      <li>It evaluates the limits a person confirmed from the owner's ALIGN decisions: block beats hold beats allow; missing facts, no decision or an unknown tool hold.</li>
+      <li>It evaluates the limits the store owner confirmed from his ALIGN decisions (Gemini drafted them; he clicked Confirm): block beats hold beats allow; missing facts, no decision or an unknown tool hold.</li>
       <li>Allowed: ALIGN Pay refunds through its own PayPal client, idempotent on the action id, with the decision key on the refund. Held: the owner approves or declines; approval re-reads PayPal first. Blocked: the agent is told why, quoting the decision.</li>
       <li>PayPal's signed webhook confirms what settled; the audit traces every refund and invoice to a decision, and flags anything else as untraced.</li>
     </ol>

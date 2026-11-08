@@ -23,6 +23,7 @@ import {
 import { loadEnvFiles } from "@align-agent/paypal-guard/env";
 import { sqliteStore } from "@align-agent/paypal-guard/store/sqlite";
 import { generateText, type LanguageModel } from "ai";
+import { fallbackModel, modelList } from "./models";
 
 /** The repository root: set by `pnpm demo`, else two levels above apps/web. */
 export const REPO_ROOT = process.env.ALIGN_PAY_ROOT ?? resolve(process.cwd(), process.cwd().endsWith(join("apps", "web")) ? "../.." : ".");
@@ -30,11 +31,13 @@ loadEnvFiles(REPO_ROOT);
 export const DATA_DIR = process.env.ALIGN_PAY_DATA_DIR ?? join(REPO_ROOT, ".data");
 
 /**
- * Gemini models. GEMINI_MODEL runs the support agent and drafts limits; GEMINI_FAST_MODEL writes the one-line reasons.
- * Both default to Gemini 3.6 Flash: the free tier allows no Pro model, and it is the newest Flash that answers reliably.
+ * Gemini models, each a comma-separated list tried in order (a free key allows few requests per model per day).
+ * GEMINI_MODEL runs the support agent and drafts limits: Gemini 3.6 Flash first, because the free tier allows no Pro
+ * model and it is the newest Flash that answers reliably. GEMINI_FAST_MODEL writes the one-line reasons.
  */
-export const AGENT_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
-export const FAST_MODEL = process.env.GEMINI_FAST_MODEL ?? "gemini-3.6-flash";
+export const AGENT_MODELS = modelList(process.env.GEMINI_MODEL, "gemini-3.6-flash,gemini-3-flash-preview,gemini-3.5-flash-lite,gemini-flash-lite-latest");
+export const FAST_MODELS = modelList(process.env.GEMINI_FAST_MODEL, "gemini-3.1-flash-lite,gemini-flash-lite-latest,gemini-3.5-flash-lite");
+export const AGENT_MODEL = AGENT_MODELS[0]!;
 
 const log: Logger = consoleLogger;
 
@@ -71,8 +74,8 @@ function create(): Runtime {
   const facts = new PayPalFacts({ paypal, store, directory, log });
   const key = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   const google = key ? createGoogleGenerativeAI({ apiKey: key }) : null;
-  const pro = google ? google(AGENT_MODEL) : null;
-  const flash = google ? google(FAST_MODEL) : null;
+  const pro = google ? fallbackModel(AGENT_MODELS, (id) => google(id) as never, log) : null;
+  const flash = google ? fallbackModel(FAST_MODELS, (id) => google(id) as never, log) : null;
 
   const ledger: LedgerStatus = {
     syncing: false,
@@ -97,7 +100,6 @@ function create(): Runtime {
               "You write one short, plain sentence for a customer-support receipt card that explains why a payment action was held for the store owner or refused. Use only the facts given. No greeting, no promises, under 25 words.",
             prompt: JSON.stringify({ outcome: rec.status, reason: rec.verdict.reason, rule: rec.verdict.results.find((r) => r.outcome !== "allow")?.statement ?? null }),
             maxRetries: 0,
-            providerOptions: { google: { thinkingConfig: { thinkingLevel: "minimal" } } },
             abortSignal: AbortSignal.timeout(3000),
           });
           return text.trim();
