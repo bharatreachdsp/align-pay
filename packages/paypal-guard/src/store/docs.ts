@@ -102,10 +102,15 @@ export class DocStore implements Store {
     this.db.put("kv", key, value);
   }
 
+  /**
+   * Starts the demo over: open holds, refusals and scenarios go. Money that moved in PayPal stays on the record
+   * (executed actions, orders, webhook events), so the audit can still trace it.
+   */
   resetDemo() {
-    const seedOrders = this.listOrders().filter((o) => o.source === "seed");
-    for (const c of ["actions", "orders", "scenarios", "webhook_events"]) this.db.clear(c);
-    for (const o of seedOrders) this.putOrder(o);
+    for (const a of this.db.list("actions") as ActionRecord[]) {
+      if (a.status !== "executed" && a.status !== "failed") this.db.del("actions", a.id);
+    }
+    this.db.clear("scenarios");
     this.db.del("kv", "last_audit");
   }
 }

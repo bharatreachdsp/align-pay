@@ -68,7 +68,8 @@ const owner: App = { ...support, page: ownerPage };
 try {
   // The demo's orders exist before the story starts (Start a demo needs the rules confirmed, so do that first).
   if (state.confirmed < 4) await confirmRules(owner);
-  console.log("Starting a fresh demo…");
+  console.log("Resetting and starting a fresh demo…");
+  await fetch(`${BASE}/api/demo/reset`, { method: "POST" });
   await startDemo(support);
 
   // Off camera: withdraw the four confirmations, so the owner confirms them on camera.

@@ -109,6 +109,6 @@ export interface Store {
   getKv<T = unknown>(key: string): T | null;
   setKv(key: string, value: unknown): void;
 
-  /** "Reset": clears actions, orders, scenarios and webhook events. Policies, the ledger cache and settings stay. */
+  /** "Reset": clears open holds, refusals and scenarios. Executed actions, orders, webhook events and policies stay. */
   resetDemo(): void;
 }

@@ -104,7 +104,7 @@ export function receiptCard(rec: ActionRecord, policies: Policy[]): ReceiptCard 
     reason: rec.status === "denied" ? r.reason : v.reason,
     explanation: rec.explanation ?? null,
     alternative: rec.alternative ?? null,
-    facts: [...facts.entries()].map(([label, value]) => ({ label, value })).slice(0, 10),
+    facts: [...facts.entries()].map(([label, value]) => ({ label, value })).slice(0, 8),
     checks: v.results.map((x) => ({ key: x.decisionKey, check: x.check, outcome: x.outcome, reason: x.reason })),
     paypalId: rec.paypalId ?? null,
     paypalLabel: rec.type === "refund.create" ? "PayPal refund" : "PayPal invoice",

@@ -46,7 +46,8 @@ export function StartDemo() {
       <h3>{rulesReady ? "Run the demo" : "2 · Run the demo"}</h3>
       <p className="muted small">
         Creates fresh fictional customers and captures their orders in the PayPal sandbox with a test card, then makes Ben's
-        first refund ($20) through the guard. Takes about ten seconds.
+        first refund ($20) through the guard. Takes about ten seconds. Reset clears open holds; money that already moved stays
+        on the record for the audit.
       </p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <button className="btn" onClick={start} disabled={running || !rulesReady} data-testid="start-demo-button">

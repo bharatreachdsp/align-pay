@@ -16,6 +16,7 @@ export function AuditView() {
   const [report, setReport] = useState<AuditReport | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showTests, setShowTests] = useState(false);
   useEffect(() => {
     void fetch("/api/audit", { cache: "no-store" })
       .then((r) => r.json())
@@ -71,7 +72,7 @@ export function AuditView() {
                 </tr>
               </thead>
               <tbody>
-                {report.rows.map((r) => (
+                {report.rows.filter((r) => showTests || r.cls !== "other").map((r) => (
                   <tr key={`${r.source}-${r.id}`} className={r.cls} data-testid={`audit-row-${r.cls}`} data-id={r.id}>
                     <td className="small">{time(r.at)}</td>
                     <td>
@@ -94,6 +95,15 @@ export function AuditView() {
               </tbody>
             </table>
           </div>
+          {report.counts.other ? (
+            <p className="small muted">
+              {report.counts.other} other rows are ALIGN Pay&apos;s own sandbox tests, setup checks or other PayPal activity, not store
+              traffic.{" "}
+              <button className="btn ghost small" onClick={() => setShowTests(!showTests)}>
+                {showTests ? "Hide them" : "Show them"}
+              </button>
+            </p>
+          ) : null}
         </>
       ) : (
         <p className="muted">No audit yet. Run one.</p>

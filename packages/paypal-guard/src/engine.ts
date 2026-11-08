@@ -54,17 +54,15 @@ function factsUsed(f: Facts, now: Date): Record<string, FactValue> {
   if (f.kind === "refund") {
     return {
       order: f.orderId,
-      capture: f.captureId,
       captured: f.capturedUsd,
       refunded: f.refundedUsd,
       remaining: f.remainingUsd,
-      customer: f.customerId,
       openDisputes: f.openDisputes,
       refundsInLast30Days:
         f.customerRefunds === null ? null : f.customerRefunds.filter((r) => Date.parse(r.at) >= now.getTime() - 30 * 86_400_000).length,
     };
   }
-  return { invoice: f.invoiceId, invoiceTotal: f.totalUsd, terms: f.termType, discountPct: f.discountPct, customer: f.recipientCustomerId };
+  return { invoice: f.invoiceId, invoiceTotal: f.totalUsd, terms: f.termType, discountPct: f.discountPct };
 }
 
 export interface EvaluateOptions {
@@ -212,7 +210,7 @@ function evaluateRule(
         if (requested === null || facts.refundedUsd === null) return missing("The order's refunds so far");
         // "per order": what was already refunded on this order counts toward the limit.
         const total = Math.round((facts.refundedUsd + requested) * 100) / 100;
-        const f = { requested, refundedBefore: facts.refundedUsd, orderTotalRefunded: total, max: rule.maxUsd };
+        const f = { requested, max: rule.maxUsd };
         return total > rule.maxUsd + EPS
           ? over("hold", `A refund of ${usd(requested)} takes this order's refunds to ${usd(total)}, above ${usd(rule.maxUsd)}: the owner approves it first.`, f)
           : pass(`${usd(requested)} is within the ${usd(rule.maxUsd)} the agent may refund on its own.`, f);

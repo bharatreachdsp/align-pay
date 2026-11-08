@@ -42,7 +42,8 @@ async function bringIntoView(app: App, selector: string, offset = 140) {
 const app = await openApp(BASE, { width: 1500, height: 1000 }, 2);
 try {
   if ((await appState(BASE)).confirmed < 4) await confirmRules(app);
-  console.log("Starting a fresh demo…");
+  console.log("Resetting and starting a fresh demo…");
+  await fetch(`${BASE}/api/demo/reset`, { method: "POST" });
   await startDemo(app);
 
   // 01: Asha's refund held, with its receipt card.
@@ -73,7 +74,10 @@ try {
   await app.page.locator(".chat .log").evaluate((el) => (el.scrollTop = el.scrollHeight));
   const supportCard = app.page.getByTestId("receipt-card").last();
   await waitForStatus(supportCard, "allowed", 30_000);
-  if (verified) await waitForWebhook(supportCard, 30_000);
+  const onCard = await waitForWebhook(supportCard, 150_000);
+  if (!onCard) console.warn("  ! the support card has no webhook line yet");
+  await supportCard.evaluate((el) => el.scrollIntoView({ block: "start" }));
+  await app.page.evaluate(() => window.scrollBy(0, -12));
   await app.page.waitForTimeout(600);
   await shot(app, "03-refund-executed-webhook-verified");
 
