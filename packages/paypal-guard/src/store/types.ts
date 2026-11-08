@@ -60,6 +60,8 @@ export interface WebhookEventRecord {
   summary: string | null;
   /** What it reconciled against: an action id, an order id, or nothing. */
   matched: string | null;
+  /** The resource's custom_id (an ALIGN Pay action id on refunds ALIGN Pay made), if any. */
+  customId?: string | null;
 }
 
 export interface Scenario {

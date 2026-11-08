@@ -79,6 +79,19 @@ describe("audit", () => {
     expect(r.transactionSearch).toBe("unavailable");
   });
 
+  it("a refund carrying another copy's action id is labelled as such, not untraced", () => {
+    const r = classifyAudit({
+      now: NOW,
+      transactions: [tx({ transaction_id: "REF-COPY", transaction_event_code: "T1107", custom_field: "alp_01JTEST0000000000000000009" })],
+      invoices: [],
+      actions: [],
+      orders: [],
+      webhookEvents: [{ id: "WH-9", eventType: "PAYMENT.CAPTURE.REFUNDED", resourceId: "REF-HOOK", receivedAt: hoursAgo(0.1), createTime: hoursAgo(0.1), summary: null, matched: null, customId: "alp_01JTEST0000000000000000008" }],
+    });
+    expect(r.rows.find((x) => x.id === "REF-COPY")!.cls).toBe("other");
+    expect(r.rows.find((x) => x.id === "REF-HOOK")!.label).toMatch(/another copy of ALIGN Pay/);
+  });
+
   it("invoices trace through the action that created and sent them", () => {
     const create = executedRefund({ id: "alp_01JTEST0000000000000000002", type: "invoice.create", paypalId: "INV2-A", invoiceId: "INV2-A", decisionKey: "AL-14" });
     const send = executedRefund({ id: "alp_01JTEST0000000000000000003", type: "invoice.send", paypalId: "INV2-A", invoiceId: "INV2-A", decisionKey: "AL-14" });

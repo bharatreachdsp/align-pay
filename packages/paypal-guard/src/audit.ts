@@ -39,6 +39,8 @@ export interface AuditReport {
 const traced = (a: ActionRecord) =>
   a.decisionKey ? `traced to ${a.decisionKey} via action ${a.id}` : `traced to the owner's approval via action ${a.id} (no standing decision)`;
 const UNTRACED = "untraced: no ALIGN Pay action or decision behind it";
+const OTHER_COPY = (id: string) => `made by another copy of ALIGN Pay (action ${id}), so this copy cannot trace its decision`;
+const isActionId = (v: string | null | undefined): v is string => !!v && /^alp_[0-9A-Z]{26}$/.test(v);
 
 /**
  * Classifies every money movement: refunds and invoices must trace to a decision (through the action that executed
@@ -80,6 +82,10 @@ export function classifyAudit(i: AuditInput): AuditReport {
     }
     if (isRefundCode(t.transaction_event_code)) {
       const a = byPaypalId.get(t.transaction_id) ?? (t.custom_field ? byActionId.get(t.custom_field) : undefined);
+      if (!a && isActionId(t.custom_field)) {
+        rows.push({ ...base, kind: "refund", cls: "other", label: OTHER_COPY(t.custom_field), decisionKey: null, actionId: null, orderId: null });
+        continue;
+      }
       rows.push({
         ...base,
         kind: "refund",
@@ -137,6 +143,22 @@ export function classifyAudit(i: AuditInput): AuditReport {
   for (const e of i.webhookEvents.filter((x) => x.eventType === "PAYMENT.CAPTURE.REFUNDED" && x.resourceId)) {
     if (listed.has(e.resourceId!) || byPaypalId.has(e.resourceId!)) continue;
     listed.add(e.resourceId!);
+    if (isActionId(e.customId) && !byActionId.has(e.customId)) {
+      rows.push({
+        id: e.resourceId!,
+        at: e.createTime ?? e.receivedAt,
+        kind: "refund",
+        amountUsd: null,
+        cls: "other",
+        label: OTHER_COPY(e.customId),
+        decisionKey: null,
+        actionId: null,
+        orderId: null,
+        source: "webhook",
+        note: "webhook verified, awaiting PayPal's listing",
+      });
+      continue;
+    }
     rows.push({
       id: e.resourceId!,
       at: e.createTime ?? e.receivedAt,

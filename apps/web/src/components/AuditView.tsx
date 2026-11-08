@@ -97,8 +97,8 @@ export function AuditView() {
           </div>
           {report.counts.other ? (
             <p className="small muted">
-              {report.counts.other} other rows are ALIGN Pay&apos;s own sandbox tests, setup checks or other PayPal activity, not store
-              traffic.{" "}
+              {report.counts.other} other rows are ALIGN Pay&apos;s own sandbox tests and setup checks, refunds made by other copies of
+              ALIGN Pay on this sandbox account, or other PayPal activity.{" "}
               <button className="btn ghost small" onClick={() => setShowTests(!showTests)}>
                 {showTests ? "Hide them" : "Show them"}
               </button>

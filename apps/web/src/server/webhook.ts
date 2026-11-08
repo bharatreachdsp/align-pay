@@ -66,6 +66,7 @@ export async function handleWebhook(raw: string, header: (name: string) => strin
     createTime: evt.create_time ?? null,
     summary: evt.summary ?? null,
     matched,
+    customId: typeof res.custom_id === "string" ? res.custom_id.slice(0, 64) : null,
   });
   rt.log.info("webhook verified", { event: evt.event_type, id: evt.id, duplicate: !fresh, matched });
   return { status: 200, body: "ok" };
