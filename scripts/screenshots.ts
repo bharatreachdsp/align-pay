@@ -40,6 +40,23 @@ async function bringIntoView(app: App, selector: string, offset = 140) {
 }
 
 const app = await openApp(BASE, { width: 1500, height: 1000 }, 2);
+// --architecture-only: just 06, the drawing (no PayPal or Gemini calls).
+if (process.argv.includes("--architecture-only")) {
+  await architecture(app);
+  await app.browser.close();
+  process.exit(0);
+}
+
+async function architecture(a: App) {
+  const svg = readFileSync(join(REPO_ROOT, "docs", "architecture.svg"), "utf8");
+  await a.page.setContent(
+    `<html><body style="margin:0;background:#f6efe3;display:flex;align-items:center;justify-content:center;height:1000px;width:1500px">
+      <div style="width:1380px">${svg.replace("<svg ", '<svg style="width:100%;height:auto" ')}</div></body></html>`,
+  );
+  await a.page.waitForTimeout(400);
+  await shot(a, "06-architecture");
+}
+
 try {
   if ((await appState(BASE)).confirmed < 4) await confirmRules(app);
   console.log("Resetting and starting a fresh demo…");
@@ -107,13 +124,7 @@ try {
   await shot(app, "07-rules-confirmed-by-owner");
 
   // 06: the architecture drawing, on receipt paper, 3:2.
-  const svg = readFileSync(join(REPO_ROOT, "docs", "architecture.svg"), "utf8");
-  await app.page.setContent(
-    `<html><body style="margin:0;background:#f6efe3;display:flex;align-items:center;justify-content:center;height:1000px;width:1500px">
-      <div style="width:1380px">${svg.replace("<svg ", '<svg style="width:100%;height:auto" ')}</div></body></html>`,
-  );
-  await app.page.waitForTimeout(400);
-  await shot(app, "06-architecture");
+  await architecture(app);
 
   // 390 px: the support page on a phone.
   const phone = await app.browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });

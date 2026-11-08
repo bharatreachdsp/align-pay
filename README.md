@@ -131,7 +131,8 @@ The banner on every page says which ledger is on.
   (you need ALIGN's CLI signed in and the repository connected) and reads the confirmed decisions through ALIGN's read
   tools (`search_decisions`, `get_decision`), with their receipts and revisions. It never calls `record_decision` or
   `ask_owner`. If a decision's revision changes, its limits go back to draft; if ALIGN does not answer, the last
-  synced copy is used; with no copy, everything is held. It never falls back to the sample.
+  synced copy is used; with no copy, everything is held. It never falls back to the sample. This client is built and
+  unit-tested against ALIGN's tool answers; the demo did not run it against a live workspace.
 
 ## The three-line integration
 

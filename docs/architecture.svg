@@ -29,7 +29,7 @@
 
   <rect class="box" x="246" y="70" width="250" height="106" rx="10"/>
   <text class="h" x="266" y="101">Support agent</text>
-  <text class="s" x="266" y="124">Gemini Pro through the AI SDK</text>
+  <text class="s" x="266" y="124">Gemini 3.6 Flash through the AI SDK</text>
   <text class="s" x="266" y="144">PayPal Agent Toolkit tool definitions</text>
   <text class="s" x="266" y="163">+ ALIGN Pay's refund_order</text>
 
@@ -79,7 +79,7 @@
 
   <rect class="box" x="316" y="300" width="270" height="122" rx="10"/>
   <text class="h" x="336" y="332">Policies</text>
-  <text class="s" x="336" y="356">Gemini Pro drafts structured limits</text>
+  <text class="s" x="336" y="356">Gemini Flash drafts structured limits</text>
   <text class="s" x="336" y="375">the store owner confirms them</text>
   <text class="s" x="336" y="394">only confirmed limits are enforced</text>
 

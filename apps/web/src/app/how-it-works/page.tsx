@@ -51,7 +51,7 @@ export default function HowItWorks() {
         </div>
         <div className="panel">
           <h3>Gemini</h3>
-          <p className="small muted">Pro runs the support conversation and drafts limits from each decision. Flash writes one-line reasons. Neither decides whether money moves.</p>
+          <p className="small muted">Gemini 3.6 Flash runs the support conversation and drafts limits from each decision; Flash-Lite writes one-line reasons. Neither decides whether money moves.</p>
         </div>
         <div className="panel">
           <h3>ALIGN</h3>
