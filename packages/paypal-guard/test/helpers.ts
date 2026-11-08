@@ -12,7 +12,7 @@ import { kettleAndKesar } from "../src/directory";
 export const NOW = new Date("2026-11-08T12:00:00.000Z");
 export const daysAgo = (n: number) => new Date(NOW.getTime() - n * 86_400_000).toISOString();
 
-/** The limits the owner confirmed during setup, as setup.sh writes them. */
+/** The limits the store owner means by the four rules (what a correct draft looks like). */
 export const CONFIRMED: Limits[] = [
   { version: 1, governs: ["refund.create"], rules: [{ kind: "auto_max_amount", action: "refund.create", maxUsd: 50, above: "hold" }] },
   { version: 1, governs: ["refund.create"], rules: [{ kind: "per_customer_count", action: "refund.create", max: 1, windowDays: 30, over: "block" }] },
@@ -27,29 +27,21 @@ export const CONFIRMED: Limits[] = [
   },
 ];
 
-export const SETUP_FILE = {
-  version: 1 as const,
-  confirmedBy: "Prateek",
-  confirmedAt: "2026-11-08T06:00:00.000Z",
-  method: "setup" as const,
-  policies: STORE_RULE_STATEMENTS.map((statement, i) => ({ decision: `D${i + 1}`, statement, limits: CONFIRMED[i]! })),
-};
-
 export function policy(i: number, over: Partial<Policy> = {}): Policy {
   return {
     decisionKey: `AL-${i + 11}`,
     statement: STORE_RULE_STATEMENTS[i]!,
     decisionRevision: 1,
-    receipts: [{ quote: STORE_RULE_STATEMENTS[i]!, source: "ALIGN · confirmation" }],
-    ledgerMode: "align",
+    receipts: [{ quote: STORE_RULE_STATEMENTS[i]!, source: "Sample ALIGN ledger · confirmation" }],
+    ledgerMode: "sample",
     status: "confirmed",
     limits: CONFIRMED[i]!,
     reading: null,
     draftedBy: "test",
     draftedAt: NOW.toISOString(),
-    confirmedBy: "Store owner, during setup",
+    confirmedBy: "store owner",
     confirmedAt: NOW.toISOString(),
-    confirmMethod: "setup",
+    confirmMethod: "owner page",
     note: null,
     ...over,
   };

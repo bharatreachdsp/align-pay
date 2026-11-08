@@ -1,3 +1,5 @@
+import { type Limits, STORE_RULE_STATEMENTS, canonicalJson, normaliseStatement } from "@align-agent/paypal-guard";
+
 /** Text shared by the README, the overview PDF and the submission answers, so they never drift apart. */
 
 export const PITCH =
@@ -37,3 +39,28 @@ export function judgeSteps(o: { clientId: string; secret: string; public?: boole
     "Open Audit and click Run audit now. Refunds and invoices trace to their decisions, and one refund made directly in PayPal is flagged as untraced. New refunds show \"awaiting PayPal's listing\" for up to 3 hours.",
   ];
 }
+
+/** What each of the store owner's rules means, as limits. A Gemini draft is confirmed only if it matches. */
+export const EXPECTED_LIMITS: Limits[] = [
+  { version: 1, governs: ["refund.create"], rules: [{ kind: "auto_max_amount", action: "refund.create", maxUsd: 50, above: "hold" }] },
+  { version: 1, governs: ["refund.create"], rules: [{ kind: "per_customer_count", action: "refund.create", max: 1, windowDays: 30, over: "block" }] },
+  { version: 1, governs: ["refund.create"], rules: [{ kind: "block_if_open_dispute", action: "refund.create" }] },
+  {
+    version: 1,
+    governs: ["invoice.create", "invoice.send"],
+    rules: [
+      { kind: "invoice_terms", allowedTerms: ["NET_15"], maxDiscountPct: 10, over: "block" },
+      { kind: "auto_max_amount", action: "invoice.send", maxUsd: 2000, above: "hold" },
+    ],
+  },
+];
+
+export function expectedFor(statement: string): Limits | null {
+  const i = STORE_RULE_STATEMENTS.findIndex((s) => normaliseStatement(s) === normaliseStatement(statement));
+  return i < 0 ? null : EXPECTED_LIMITS[i]!;
+}
+
+export const matchesRule = (statement: string, limits: Limits | null): boolean => {
+  const e = expectedFor(statement);
+  return !!e && !!limits && canonicalJson(e) === canonicalJson(limits);
+};

@@ -1,4 +1,6 @@
+import type { Limits } from "@align-agent/paypal-guard";
 import { type Browser, type BrowserContext, type Locator, type Page, chromium } from "playwright";
+import { matchesRule } from "./content";
 
 /** Drives the running app through its UI, the way a person would. Shared by screenshots, video and the judge run. */
 export interface App {
@@ -105,9 +107,37 @@ export async function waitForWebhook(card: Locator, timeout = 120_000): Promise<
 }
 
 export interface AppStateLite {
-  ledger: { mode: string; label: string };
-  policies: { decisionKey: string; status: string; statement: string; confirmedBy: string | null }[];
+  ledger: { mode: string; label: string; syncing: boolean };
+  policies: { decisionKey: string; status: string; statement: string; confirmedBy: string | null; limits: Limits | null }[];
   scenario: { status: string } | null;
+  confirmed: number;
+}
+
+/**
+ * Plays the fictional store owner on the owner page: for each rule not yet confirmed, checks that Gemini's draft says
+ * what the rule says, then clicks Confirm. A draft that does not match is never confirmed: this throws instead.
+ */
+export async function confirmRules(app: App, o: { pause?: number; onEach?: (card: Locator) => Promise<void> } = {}): Promise<string[]> {
+  const deadline = Date.now() + 180_000;
+  let s = await appState(app.base);
+  while ((s.ledger.syncing || s.policies.length < 4 || s.policies.some((p) => !p.limits)) && Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 2000));
+    s = await appState(app.base);
+  }
+  const wrong = s.policies.filter((p) => p.status !== "confirmed" && !matchesRule(p.statement, p.limits));
+  if (wrong.length) throw new Error(`Gemini's draft does not match the rule for ${wrong.map((p) => p.decisionKey).join(", ")}; not confirming.`);
+  if (!app.page.url().endsWith("/owner")) await go(app, "/owner");
+  const done: string[] = [];
+  for (const p of s.policies.filter((x) => x.status !== "confirmed")) {
+    const card = app.page.getByTestId(`policy-${p.decisionKey}`);
+    await card.scrollIntoViewIfNeeded();
+    if (o.onEach) await o.onEach(card);
+    await card.getByTestId(`confirm-${p.decisionKey}`).click();
+    await app.page.locator(`[data-testid="policy-${p.decisionKey}"][data-status="confirmed"]`).waitFor({ timeout: 20_000 });
+    done.push(p.decisionKey);
+    if (o.pause) await app.page.waitForTimeout(o.pause);
+  }
+  return done;
 }
 
 export async function appState(base: string): Promise<AppStateLite> {

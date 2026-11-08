@@ -50,23 +50,28 @@ function RuleEditor({ rule, onChange }: { rule: Rule; onChange: (r: Rule) => voi
 function PolicyCard({ p, onSaved }: { p: PolicyView; onSaved: () => void }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Limits | null>(p.limits);
-  const [by, setBy] = useState<"local user" | "store owner">("local user");
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const confirmed = p.status === "confirmed";
 
-  async function confirm() {
+  async function post(path: "confirm" | "withdraw") {
     setError(null);
-    const r = await fetch(`/api/policies/${p.decisionKey}/confirm`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ limits: draft, by }),
-    });
-    if (!r.ok) {
-      setError(((await r.json()) as { error?: string }).error ?? "Could not confirm");
-      return;
+    setBusy(true);
+    try {
+      const r = await fetch(`/api/policies/${p.decisionKey}/${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(path === "confirm" ? { limits: draft } : {}),
+      });
+      if (!r.ok) {
+        setError(((await r.json()) as { error?: string }).error ?? "Could not save");
+        return;
+      }
+      setEditing(false);
+      onSaved();
+    } finally {
+      setBusy(false);
     }
-    setEditing(false);
-    onSaved();
   }
 
   return (
@@ -97,13 +102,14 @@ function PolicyCard({ p, onSaved }: { p: PolicyView; onSaved: () => void }) {
       <p className="small" data-testid="confirmed-by">
         {confirmed ? (
           <>
-            Confirmed by <strong>{p.confirmedBy}</strong> · {time(p.confirmedAt)}
+            Confirmed by <strong>the {p.confirmedBy}</strong> · {time(p.confirmedAt)}
           </>
         ) : (
-          <span className="muted">Not confirmed yet. Nothing is enforced until a person confirms it.</span>
+          <span className="muted">Not confirmed yet. Nothing is enforced until the store owner confirms it.</span>
         )}
       </p>
-      {p.note ? <p className={`notice small ${p.mismatch ? "bad" : ""}`}>{p.note}</p> : null}
+      {p.note ? <p className="notice small">{p.note}</p> : null}
+      {!p.limits && !p.note ? <p className="notice small">Gemini is drafting the limits…</p> : null}
       {p.limits && (editing || !confirmed) ? (
         <div style={{ display: "grid", gap: 10, borderTop: "1px dashed var(--line-2)", paddingTop: 12 }}>
           {editing && draft
@@ -112,28 +118,27 @@ function PolicyCard({ p, onSaved }: { p: PolicyView; onSaved: () => void }) {
               ))
             : null}
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <label className="small">
-              Confirming as{" "}
-              <select value={by} onChange={(e) => setBy(e.target.value as "local user" | "store owner")} data-testid="confirm-as">
-                <option value="local user">local user</option>
-                <option value="store owner">store owner</option>
-              </select>
-            </label>
+            <button className="btn small" onClick={() => post("confirm")} disabled={busy} data-testid={`confirm-${p.decisionKey}`}>
+              Confirm
+            </button>
             {!editing ? (
               <button className="btn ghost small" onClick={() => setEditing(true)}>
                 Edit numbers
               </button>
             ) : null}
-            <button className="btn small" onClick={confirm} data-testid={`confirm-${p.decisionKey}`}>
-              Confirm
-            </button>
+            <span className="small muted">You are the store owner here.</span>
           </div>
           {error ? <p className="notice bad small">{error}</p> : null}
         </div>
       ) : p.limits ? (
-        <button className="btn ghost small" onClick={() => setEditing(true)}>
-          Edit numbers
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn ghost small" onClick={() => setEditing(true)}>
+            Edit numbers
+          </button>
+          <button className="btn ghost small" onClick={() => post("withdraw")} disabled={busy} data-testid={`withdraw-${p.decisionKey}`}>
+            Withdraw
+          </button>
+        </div>
       ) : null}
     </article>
   );
@@ -152,17 +157,23 @@ export function Policies() {
     }
   }
   return (
-    <section>
+    <section id="rules">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-        <h2 style={{ margin: 0 }}>Policies</h2>
+        <h2 style={{ margin: 0 }}>The store&apos;s rules</h2>
         <button className="btn ghost small" onClick={sync} disabled={syncing || state?.ledger.syncing} data-testid="sync">
           {syncing || state?.ledger.syncing ? "Syncing with the ledger…" : "Sync with the ledger"}
         </button>
       </div>
       <p className="small muted">
-        Each decision from {state?.ledger.mode === "align" ? "ALIGN" : "the ledger"}, with its receipt, the limits Gemini drafted
-        from it, and who confirmed them. Only confirmed limits are enforced.
+        Each decision from {state?.ledger.mode === "align" ? "your ALIGN workspace" : "the Sample ALIGN ledger"}, with its exact-quote
+        receipt, the limits Gemini drafted from it, and whether the store owner confirmed them. Only confirmed limits are enforced.
       </p>
+      {state && state.confirmed < state.policies.length ? (
+        <p className="notice warn small" data-testid="confirm-hint">
+          {state.policies.length - state.confirmed} of {state.policies.length} rules are not confirmed yet. Read each one, check the
+          numbers Gemini drafted, and click Confirm.
+        </p>
+      ) : null}
       {state?.ledger.note ? <p className="notice warn small">{state.ledger.note}</p> : null}
       <div className="grid two">
         {(state?.policies ?? []).map((p) => (

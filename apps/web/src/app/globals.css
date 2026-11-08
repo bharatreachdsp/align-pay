@@ -160,7 +160,7 @@ code,
   background: var(--allowed);
 }
 
-.badge.fixtures .dot {
+.badge.sample .dot {
   background: var(--held);
 }
 

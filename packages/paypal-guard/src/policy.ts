@@ -52,7 +52,7 @@ export interface Policy {
   statement: string;
   decisionRevision: number | null;
   receipts: Receipt[];
-  ledgerMode: "align" | "fixtures";
+  ledgerMode: "sample" | "align";
   status: PolicyStatus;
   limits: Limits | null;
   /** The model's one-paragraph "how I read this rule". */
@@ -61,7 +61,7 @@ export interface Policy {
   draftedAt: string | null;
   confirmedBy: string | null;
   confirmedAt: string | null;
-  confirmMethod: "setup" | "owner page" | null;
+  confirmMethod: "owner page" | null;
   /** Why it is still a draft, when it is. */
   note: string | null;
 }
@@ -106,28 +106,6 @@ export function normaliseStatement(s: string): string {
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
-}
-
-// --- the owner's confirmation file (written by setup.sh, read-only here) ------------------------------------------
-
-export const ConfirmedLimitsFileSchema = z.object({
-  version: z.literal(1),
-  confirmedBy: z.string().min(1),
-  confirmedAt: z.string().min(1),
-  method: z.literal("setup"),
-  policies: z
-    .array(z.object({ decision: z.string(), statement: z.string().min(1), limits: LimitsSchema }))
-    .min(1),
-});
-export type ConfirmedLimitsFile = z.infer<typeof ConfirmedLimitsFileSchema>;
-
-export function findConfirmation(
-  file: ConfirmedLimitsFile | null,
-  statement: string,
-): ConfirmedLimitsFile["policies"][number] | null {
-  if (!file) return null;
-  const want = normaliseStatement(statement);
-  return file.policies.find((p) => normaliseStatement(p.statement) === want) ?? null;
 }
 
 // --- plain words ---------------------------------------------------------------------------------------------------

@@ -59,6 +59,8 @@ export function ReceiptCard({ actionId, initial, children }: { actionId: string;
             <blockquote key={i}>“{r.quote}”</blockquote>
           ))}
         </div>
+      ) : card.basis === "paypal" ? (
+        <div className="rule small muted">Checked against PayPal&apos;s own records.</div>
       ) : (
         <div className="rule small muted">No confirmed decision covers this. Nobody decided it, so a person has to.</div>
       )}

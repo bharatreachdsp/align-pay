@@ -11,7 +11,7 @@ export * from "./directory";
 export * from "./drafting";
 export * from "./policies";
 export * from "./ledger/types";
-export * from "./ledger/fixtures";
+export * from "./ledger/sample";
 export * from "./ledger/align-mcp";
 export * from "./ledger/cache";
 export * from "./store/types";

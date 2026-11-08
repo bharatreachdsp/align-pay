@@ -1,6 +1,7 @@
 import type { Receipt } from "../policy";
 
-export type LedgerMode = "align" | "fixtures";
+/** "sample": the Sample ALIGN ledger in the repository (default). "align": a live ALIGN workspace through align mcp. */
+export type LedgerMode = "sample" | "align";
 
 /** One confirmed decision, as the ledger serves it. The receipts are the exact quotes it came from. */
 export interface LedgerDecision {

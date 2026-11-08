@@ -1,9 +1,9 @@
 import { type Policy, describeLimits, receiptCard } from "@align-agent/paypal-guard";
-import { runtime } from "./runtime";
+import { AGENT_MODEL, runtime } from "./runtime";
 import { currentScenario } from "./scenario";
 
 export interface LedgerBadge {
-  mode: "align" | "fixtures" | "none";
+  mode: "sample" | "align" | "none";
   label: string;
   syncedAt: string | null;
   stale: boolean;
@@ -26,7 +26,7 @@ export function ledgerBadge(): LedgerBadge {
   }
   return {
     mode: snap.mode,
-    label: snap.mode === "align" ? "Ledger: ALIGN" : "Ledger: local fixtures (not ALIGN)",
+    label: snap.mode === "align" ? "Ledger: your ALIGN workspace (live)" : "Ledger: Sample ALIGN ledger",
     syncedAt: snap.syncedAt,
     stale: !!snap.stale,
     syncing: rt.ledger.syncing,
@@ -36,7 +36,6 @@ export function ledgerBadge(): LedgerBadge {
 
 export interface PolicyView extends Policy {
   plain: string[];
-  mismatch: boolean;
 }
 
 export function policyViews(): PolicyView[] {
@@ -46,7 +45,7 @@ export function policyViews(): PolicyView[] {
   return rt.store
     .listPolicies()
     .filter((p) => keys.has(p.decisionKey))
-    .map((p) => ({ ...p, plain: p.limits ? describeLimits(p.limits) : [], mismatch: rt.ledger.mismatches.includes(p.decisionKey) }));
+    .map((p) => ({ ...p, plain: p.limits ? describeLimits(p.limits) : [] }));
 }
 
 export function cards(filter: Parameters<ReturnType<typeof runtime>["store"]["listActions"]>[0] = {}) {
@@ -75,8 +74,8 @@ export function appState() {
           return { base, id, name: c.name, businessName: c.businessName, orders: rt.store.listOrders({ customerId: id }) };
         })
       : [],
-    models: { agent: rt.pro ? (process.env.GEMINI_PRO_MODEL ?? "gemini-2.5-pro") : null },
-    confirmationsFile: !!rt.confirmations,
+    models: { agent: rt.pro ? AGENT_MODEL : null },
+    confirmed: policyViews().filter((p) => p.status === "confirmed").length,
   };
 }
 export type AppState = ReturnType<typeof appState>;

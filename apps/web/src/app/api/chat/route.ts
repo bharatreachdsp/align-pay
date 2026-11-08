@@ -5,7 +5,7 @@ import { currentScenario } from "@/server/scenario";
 
 export const maxDuration = 120;
 
-/** The support agent: Gemini Pro with the guarded PayPal tools, at most 8 tool steps per turn. */
+/** The support agent: Gemini with the guarded PayPal tools, at most 8 tool steps per turn. */
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as { messages?: UIMessage[]; customerId?: string } | null;
   const who = customerSchema.safeParse(body ?? {});
@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     tools,
     stopWhen: stepCountIs(8),
     maxRetries: 2,
+    providerOptions: { google: { thinkingConfig: { thinkingLevel: "low" } } },
   });
   return result.toUIMessageStreamResponse({
     onError: (e) => {

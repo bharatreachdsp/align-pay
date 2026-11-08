@@ -1,0 +1,286 @@
+{
+  "about": "A sample ALIGN ledger for Kettle & Kesar, a fictional tea store. Each entry has the shape of ALIGN's public ledger schema (align-cli, packages/core/src/api/ledger.ts, MIT). The receipt of each decision is the store owner's statement itself, as an exact quote. This is not a live ALIGN workspace.",
+  "workspace": "Kettle & Kesar (fictional)",
+  "entries": [
+    {
+      "key": "AL-1",
+      "kind": "decision",
+      "status": "confirmed",
+      "statement": "The support agent may refund up to $50 per order on its own. Any refund above $50 needs my approval first.",
+      "scope_paths": [
+        "packages/paypal-guard/src/**"
+      ],
+      "verification": "unverified",
+      "private": false,
+      "confirmed_by": {
+        "id": "0193a1c0-7f00-7000-8000-00000000a001",
+        "display_name": "Store owner (Kettle & Kesar)"
+      },
+      "confirmed_at": "2026-11-02T10:12:00+05:30",
+      "owner": {
+        "id": "0193a1c0-7f00-7000-8000-00000000a001",
+        "display_name": "Store owner (Kettle & Kesar)"
+      },
+      "due_date": null,
+      "open_conflicts": 0,
+      "revision": 1,
+      "rationale": "Small refunds should be instant for customers; bigger ones need a person to look at them.",
+      "alternatives_rejected": [],
+      "owner_hint": null,
+      "origin": "sample",
+      "created_at": "2026-11-02T10:12:00+05:30",
+      "superseded_by": null,
+      "revisions": [
+        {
+          "revision": 1,
+          "statement": "The support agent may refund up to $50 per order on its own. Any refund above $50 needs my approval first.",
+          "rationale": "Small refunds should be instant for customers; bigger ones need a person to look at them.",
+          "alternatives_rejected": [],
+          "scope_paths": [
+            "packages/paypal-guard/src/**"
+          ],
+          "due_date": null,
+          "owner_hint": null,
+          "reason": null,
+          "by": "person",
+          "created_at": "2026-11-02T10:12:00+05:30"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "confirmation",
+          "locator": "sample-ledger.json",
+          "quote": "The support agent may refund up to $50 per order on its own. Any refund above $50 needs my approval first.",
+          "url": null,
+          "added_in_revision": 1,
+          "created_at": "2026-11-02T10:12:00+05:30"
+        }
+      ],
+      "links": [],
+      "checks": [],
+      "conflicts": [],
+      "events": [
+        {
+          "kind": "recorded",
+          "by": "person",
+          "created_at": "2026-11-02T10:12:00+05:30"
+        },
+        {
+          "kind": "confirmed",
+          "by": "person",
+          "created_at": "2026-11-02T10:12:00+05:30"
+        }
+      ]
+    },
+    {
+      "key": "AL-2",
+      "kind": "decision",
+      "status": "confirmed",
+      "statement": "A customer gets at most one refund in any 30 days. The agent must refuse a second refund within 30 days; the customer can email me instead.",
+      "scope_paths": [
+        "packages/paypal-guard/src/**"
+      ],
+      "verification": "unverified",
+      "private": false,
+      "confirmed_by": {
+        "id": "0193a1c0-7f00-7000-8000-00000000a001",
+        "display_name": "Store owner (Kettle & Kesar)"
+      },
+      "confirmed_at": "2026-11-02T10:14:00+05:30",
+      "owner": {
+        "id": "0193a1c0-7f00-7000-8000-00000000a001",
+        "display_name": "Store owner (Kettle & Kesar)"
+      },
+      "due_date": null,
+      "open_conflicts": 0,
+      "revision": 1,
+      "rationale": "Repeat refunds are where abuse happens; a person should talk to the customer.",
+      "alternatives_rejected": [],
+      "owner_hint": null,
+      "origin": "sample",
+      "created_at": "2026-11-02T10:14:00+05:30",
+      "superseded_by": null,
+      "revisions": [
+        {
+          "revision": 1,
+          "statement": "A customer gets at most one refund in any 30 days. The agent must refuse a second refund within 30 days; the customer can email me instead.",
+          "rationale": "Repeat refunds are where abuse happens; a person should talk to the customer.",
+          "alternatives_rejected": [],
+          "scope_paths": [
+            "packages/paypal-guard/src/**"
+          ],
+          "due_date": null,
+          "owner_hint": null,
+          "reason": null,
+          "by": "person",
+          "created_at": "2026-11-02T10:14:00+05:30"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "confirmation",
+          "locator": "sample-ledger.json",
+          "quote": "A customer gets at most one refund in any 30 days. The agent must refuse a second refund within 30 days; the customer can email me instead.",
+          "url": null,
+          "added_in_revision": 1,
+          "created_at": "2026-11-02T10:14:00+05:30"
+        }
+      ],
+      "links": [],
+      "checks": [],
+      "conflicts": [],
+      "events": [
+        {
+          "kind": "recorded",
+          "by": "person",
+          "created_at": "2026-11-02T10:14:00+05:30"
+        },
+        {
+          "kind": "confirmed",
+          "by": "person",
+          "created_at": "2026-11-02T10:14:00+05:30"
+        }
+      ]
+    },
+    {
+      "key": "AL-3",
+      "kind": "decision",
+      "status": "confirmed",
+      "statement": "Never refund an order that has an open PayPal dispute. Answer the dispute instead.",
+      "scope_paths": [
+        "packages/paypal-guard/src/**"
+      ],
+      "verification": "unverified",
+      "private": false,
+      "confirmed_by": {
+        "id": "0193a1c0-7f00-7000-8000-00000000a001",
+        "display_name": "Store owner (Kettle & Kesar)"
+      },
+      "confirmed_at": "2026-11-02T10:15:00+05:30",
+      "owner": {
+        "id": "0193a1c0-7f00-7000-8000-00000000a001",
+        "display_name": "Store owner (Kettle & Kesar)"
+      },
+      "due_date": null,
+      "open_conflicts": 0,
+      "revision": 1,
+      "rationale": "Refunding during a dispute can pay the customer twice.",
+      "alternatives_rejected": [],
+      "owner_hint": null,
+      "origin": "sample",
+      "created_at": "2026-11-02T10:15:00+05:30",
+      "superseded_by": null,
+      "revisions": [
+        {
+          "revision": 1,
+          "statement": "Never refund an order that has an open PayPal dispute. Answer the dispute instead.",
+          "rationale": "Refunding during a dispute can pay the customer twice.",
+          "alternatives_rejected": [],
+          "scope_paths": [
+            "packages/paypal-guard/src/**"
+          ],
+          "due_date": null,
+          "owner_hint": null,
+          "reason": null,
+          "by": "person",
+          "created_at": "2026-11-02T10:15:00+05:30"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "confirmation",
+          "locator": "sample-ledger.json",
+          "quote": "Never refund an order that has an open PayPal dispute. Answer the dispute instead.",
+          "url": null,
+          "added_in_revision": 1,
+          "created_at": "2026-11-02T10:15:00+05:30"
+        }
+      ],
+      "links": [],
+      "checks": [],
+      "conflicts": [],
+      "events": [
+        {
+          "kind": "recorded",
+          "by": "person",
+          "created_at": "2026-11-02T10:15:00+05:30"
+        },
+        {
+          "kind": "confirmed",
+          "by": "person",
+          "created_at": "2026-11-02T10:15:00+05:30"
+        }
+      ]
+    },
+    {
+      "key": "AL-4",
+      "kind": "decision",
+      "status": "confirmed",
+      "statement": "Wholesale invoices use net 15 terms with at most a 10% discount, and any invoice over $2,000 needs my approval before it is sent.",
+      "scope_paths": [
+        "packages/paypal-guard/src/**"
+      ],
+      "verification": "unverified",
+      "private": false,
+      "confirmed_by": {
+        "id": "0193a1c0-7f00-7000-8000-00000000a001",
+        "display_name": "Store owner (Kettle & Kesar)"
+      },
+      "confirmed_at": "2026-11-02T10:17:00+05:30",
+      "owner": {
+        "id": "0193a1c0-7f00-7000-8000-00000000a001",
+        "display_name": "Store owner (Kettle & Kesar)"
+      },
+      "due_date": null,
+      "open_conflicts": 0,
+      "revision": 1,
+      "rationale": "Cash flow: long terms and deep discounts on big orders need a person's call.",
+      "alternatives_rejected": [],
+      "owner_hint": null,
+      "origin": "sample",
+      "created_at": "2026-11-02T10:17:00+05:30",
+      "superseded_by": null,
+      "revisions": [
+        {
+          "revision": 1,
+          "statement": "Wholesale invoices use net 15 terms with at most a 10% discount, and any invoice over $2,000 needs my approval before it is sent.",
+          "rationale": "Cash flow: long terms and deep discounts on big orders need a person's call.",
+          "alternatives_rejected": [],
+          "scope_paths": [
+            "packages/paypal-guard/src/**"
+          ],
+          "due_date": null,
+          "owner_hint": null,
+          "reason": null,
+          "by": "person",
+          "created_at": "2026-11-02T10:17:00+05:30"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "confirmation",
+          "locator": "sample-ledger.json",
+          "quote": "Wholesale invoices use net 15 terms with at most a 10% discount, and any invoice over $2,000 needs my approval before it is sent.",
+          "url": null,
+          "added_in_revision": 1,
+          "created_at": "2026-11-02T10:17:00+05:30"
+        }
+      ],
+      "links": [],
+      "checks": [],
+      "conflicts": [],
+      "events": [
+        {
+          "kind": "recorded",
+          "by": "person",
+          "created_at": "2026-11-02T10:17:00+05:30"
+        },
+        {
+          "kind": "confirmed",
+          "by": "person",
+          "created_at": "2026-11-02T10:17:00+05:30"
+        }
+      ]
+    }
+  ]
+}

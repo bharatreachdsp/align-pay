@@ -10,6 +10,8 @@ export function StartDemo() {
   const [error, setError] = useState<string | null>(null);
   const s = state?.scenario;
   const running = busy || s?.status === "running";
+  const total = state?.policies.length ?? 4;
+  const rulesReady = !!state && state.policies.length > 0 && state.confirmed === total;
 
   async function start() {
     setBusy(true);
@@ -29,13 +31,25 @@ export function StartDemo() {
 
   return (
     <div className="panel" data-testid="start-demo">
-      <h3>Run the demo</h3>
+      {!rulesReady ? (
+        <div style={{ marginBottom: 18 }} data-testid="confirm-step">
+          <h3>1 · Review and confirm the store&apos;s rules</h3>
+          <p className="muted small">
+            The store owner&apos;s four rules come from the Sample ALIGN ledger. Gemini has drafted limits from each; nothing is
+            enforced until the store owner confirms them. {state ? `${state.confirmed} of ${total} confirmed.` : ""}
+          </p>
+          <Link className="btn" href="/owner#rules" data-testid="review-rules">
+            Review and confirm the store&apos;s rules
+          </Link>
+        </div>
+      ) : null}
+      <h3>{rulesReady ? "Run the demo" : "2 · Run the demo"}</h3>
       <p className="muted small">
         Creates fresh fictional customers and captures their orders in the PayPal sandbox with a test card, then makes Ben's
         first refund ($20) through the guard. Takes about ten seconds.
       </p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <button className="btn" onClick={start} disabled={running} data-testid="start-demo-button">
+        <button className="btn" onClick={start} disabled={running || !rulesReady} data-testid="start-demo-button">
           {running ? "Creating orders in PayPal…" : "Start a demo"}
         </button>
         {s ? (

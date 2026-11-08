@@ -6,13 +6,13 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { REPO_ROOT, loadEnv } from "../lib/env";
-import { PR_SCENE, SCENES, type Scene } from "./scenes";
+import { SCENES, type Scene } from "./scenes";
 
 loadEnv();
 const OUT = join(REPO_ROOT, "scripts", "video", "work", "audio");
 mkdirSync(OUT, { recursive: true });
 const VOICE = process.env.GEMINI_TTS_VOICE ?? "Charon";
-const MODELS = [process.env.GEMINI_TTS_MODEL, "gemini-2.5-flash-preview-tts", "gemini-3.8-flash-tts"].filter(Boolean) as string[];
+const MODELS = [process.env.GEMINI_TTS_MODEL, "gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts"].filter(Boolean) as string[];
 
 export function seconds(file: string): number {
   return Number(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", file], { encoding: "utf8" }).trim());
@@ -82,6 +82,5 @@ export async function narrate(scenes: Scene[]): Promise<Record<string, { seconds
 }
 
 if (process.argv[1]?.endsWith("narrate.ts")) {
-  const scenes = process.env.ALIGN_PAY_PR_SCREENSHOT ? [SCENES[0]!, SCENES[1]!, PR_SCENE, ...SCENES.slice(2)] : SCENES;
-  await narrate(scenes);
+  await narrate(SCENES);
 }

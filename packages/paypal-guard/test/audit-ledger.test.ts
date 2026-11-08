@@ -128,28 +128,43 @@ describe("ALIGN's MCP answers", () => {
 });
 
 describe("ledger selection", () => {
-  const snap = (mode: "align" | "fixtures"): LedgerSnapshot => ({
+  const snap = (mode: "align" | "sample"): LedgerSnapshot => ({
     mode,
     syncedAt: NOW.toISOString(),
     source: mode,
-    decisions: [{ key: mode === "align" ? "AL-1" : "LOCAL-1", statement: STORE_RULE_STATEMENTS[0], status: "confirmed", revision: 1, why: null, receipts: [], confirmedBy: null, confirmedAt: null }],
+    decisions: [{ key: "AL-1", statement: STORE_RULE_STATEMENTS[0], status: "confirmed", revision: 1, why: null, receipts: [], confirmedBy: null, confirmedAt: null }],
   });
-  const ok = (mode: "align" | "fixtures"): Ledger => ({ mode, sync: async () => snap(mode) });
+  const ok = (mode: "align" | "sample"): Ledger => ({ mode, sync: async () => snap(mode) });
   const down: Ledger = { mode: "align", sync: async () => Promise.reject(new Error("not signed in")) };
+  const empty: Ledger = { mode: "align", sync: async () => ({ ...snap("align"), decisions: [] }) };
 
-  it("prefers ALIGN, then its cached copy, then the fixtures", async () => {
+  it("uses the Sample ALIGN ledger by default, and never touches a live ALIGN client", async () => {
+    let called = false;
+    const spy: Ledger = { mode: "align", sync: async () => ((called = true), snap("align")) };
+    const r = await syncLedger({ preference: "sample", align: spy, sample: ok("sample"), store: memoryStore(), log: silentLogger });
+    expect(r.snapshot!.mode).toBe("sample");
+    expect(called).toBe(false);
+  });
+
+  it("in ALIGN mode: ALIGN, then its cached copy; never the sample", async () => {
     const store = memoryStore();
-    expect((await syncLedger({ preference: "auto", align: ok("align"), fixtures: ok("fixtures"), store, log: silentLogger })).snapshot!.mode).toBe("align");
-    const cached = await syncLedger({ preference: "auto", align: down, fixtures: ok("fixtures"), store, log: silentLogger });
+    expect((await syncLedger({ preference: "align", align: ok("align"), sample: ok("sample"), store, log: silentLogger })).snapshot!.mode).toBe("align");
+    const cached = await syncLedger({ preference: "align", align: down, sample: ok("sample"), store, log: silentLogger });
     expect(cached.snapshot!.mode).toBe("align");
     expect(cached.snapshot!.stale).toBe(true);
-    const fresh = memoryStore();
-    expect((await syncLedger({ preference: "auto", align: down, fixtures: ok("fixtures"), store: fresh, log: silentLogger })).snapshot!.mode).toBe("fixtures");
   });
 
   it("in ALIGN mode with no cache there is no ledger, so everything is held", async () => {
-    const r = await syncLedger({ preference: "align", align: down, fixtures: ok("fixtures"), store: memoryStore(), log: silentLogger });
+    const r = await syncLedger({ preference: "align", align: down, sample: ok("sample"), store: memoryStore(), log: silentLogger });
     expect(r.snapshot).toBeNull();
     expect(r.reason).toMatch(/no cached copy/);
+  });
+
+  it("decisions that vanish from ALIGN clear the old copy", async () => {
+    const store = memoryStore();
+    await syncLedger({ preference: "align", align: ok("align"), sample: ok("sample"), store, log: silentLogger });
+    const r = await syncLedger({ preference: "align", align: empty, sample: ok("sample"), store, log: silentLogger });
+    expect(r.snapshot).toBeNull();
+    expect(store.getLedgerSnapshot()).toBeNull();
   });
 });

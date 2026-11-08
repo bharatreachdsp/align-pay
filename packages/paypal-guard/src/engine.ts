@@ -315,7 +315,10 @@ export function evaluate(action: Action, facts: Facts, policies: Policy[], now: 
 
   const worst = effective.reduce<Outcome>((w, r) => (RANK[r.outcome] > RANK[w] ? r.outcome : w), "allow");
   const deciding = effective.find((r) => r.outcome === worst && worst !== "allow");
-  const firstPolicyHit = effective.find((r) => r.source === "policy" && r.outcome === worst && worst !== "allow");
+  // A block resting only on PayPal's facts (more than is left to refund) still names a decision that applies, if any.
+  const firstPolicyHit =
+    effective.find((r) => r.source === "policy" && r.outcome === worst && worst !== "allow") ??
+    (worst === "block" ? effective.find((r) => r.source === "policy" && r.outcome === "hold") : undefined);
   const amountPolicy = effective.find((r) => r.source === "policy" && r.check === "auto_max_amount");
   const primaryKey =
     worst === "allow"

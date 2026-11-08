@@ -5,14 +5,13 @@
  * 2. Each clip is fitted to its narration: sped up (at most 2.2×) or held on its last frame.
  * 3. Remotion composes the title card, the clips with burned-in captions and callouts, and the end card.
  * 4. ffmpeg encodes H.264 (-preset veryfast) with AAC audio; captions.srt, youtube.txt and script.md are written.
- *   --skip-capture-check   build even if some scenes are missing
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { REPO_ROOT, loadEnv } from "../lib/env";
 import { seconds } from "./narrate";
-import { PR_SCENE, SCENES, type Scene } from "./scenes";
+import { SCENES, type Scene } from "./scenes";
 
 loadEnv();
 const FPS = 30;
@@ -35,8 +34,7 @@ mkdirSync(join(PUB, "scenes"), { recursive: true });
 mkdirSync(join(PUB, "audio"), { recursive: true });
 
 const ff = (args: string[]) => execFileSync("ffmpeg", ["-y", "-loglevel", "error", ...args], { stdio: ["ignore", "inherit", "inherit"] });
-const prShot = process.env.ALIGN_PAY_PR_SCREENSHOT && existsSync(process.env.ALIGN_PAY_PR_SCREENSHOT) ? process.env.ALIGN_PAY_PR_SCREENSHOT : null;
-const scenes: Scene[] = prShot ? [SCENES[0]!, SCENES[1]!, PR_SCENE, ...SCENES.slice(2)] : SCENES;
+const scenes: Scene[] = SCENES;
 const narration = JSON.parse(readFileSync(join(WORK, "audio", "narration.json"), "utf8")) as Record<string, { seconds: number; engine: string }>;
 
 interface Meta {
@@ -69,13 +67,6 @@ function clipFromFrames(id: string): { file: string; duration: number; map: (t: 
   const file = join(dir, "clip.mp4");
   ff(["-f", "concat", "-safe", "0", "-i", join(dir, "list.txt"), "-fps_mode", "cfr", "-r", String(FPS), "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0xf6efe3", "-pix_fmt", "yuv420p", "-c:v", "libx264", "-preset", "veryfast", "-crf", "16", file]);
   return { file, duration: seconds(file), map };
-}
-
-/** A still image (the PR screenshot) as a clip. */
-function clipFromImage(img: string, id: string, dur: number): string {
-  const file = join(WORK, `${id}-still.mp4`);
-  ff(["-loop", "1", "-i", img, "-t", dur.toFixed(2), "-r", String(FPS), "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0xf6efe3", "-pix_fmt", "yuv420p", "-c:v", "libx264", "-preset", "veryfast", "-crf", "16", file]);
-  return file;
 }
 
 function chunks(text: string): string[] {
@@ -116,21 +107,12 @@ for (const s of scenes) {
   const n = narration[s.id];
   if (!n) throw new Error(`No narration for ${s.id}: run pnpm video:narrate`);
   const want = n.seconds + LEAD + TAIL;
-  let src: string;
-  let footage: number;
-  let map = (t: number) => t;
-  let callouts: Meta["callouts"] = [];
-  if (s.id === "pr") {
-    src = clipFromImage(prShot!, "pr", want);
-    footage = want;
-  } else {
-    if (!existsSync(join(WORK, "scenes", s.id, "meta.json"))) throw new Error(`Scene ${s.id} was not captured: run pnpm video:capture`);
-    const c = clipFromFrames(s.id);
-    src = c.file;
-    footage = c.duration;
-    map = c.map;
-    callouts = (JSON.parse(readFileSync(join(WORK, "scenes", s.id, "meta.json"), "utf8")) as Meta).callouts;
-  }
+  if (!existsSync(join(WORK, "scenes", s.id, "meta.json"))) throw new Error(`Scene ${s.id} was not captured: run pnpm video:capture`);
+  const clip = clipFromFrames(s.id);
+  const src = clip.file;
+  const footage = clip.duration;
+  const map = clip.map;
+  const callouts = (JSON.parse(readFileSync(join(WORK, "scenes", s.id, "meta.json"), "utf8")) as Meta).callouts;
   const speed = footage > want ? Math.min(footage / want, MAX_SPEED) : 1;
   const dur = Math.max(want, footage / speed);
   const fitted = join(PUB, "scenes", `${s.id}.mp4`);
@@ -191,7 +173,7 @@ writeFileSync(join(OUT, "captions.srt"), srt.map((c, i) => `${i + 1}\n${ts(c.sta
 const engines = [...new Set(Object.values(narration).map((x) => x.engine))];
 writeFileSync(
   join(OUT, "script.md"),
-  `# ALIGN Pay demo video: script\n\nFinal length: ${cursor.toFixed(1)} s. Narration: ${engines.join(", ")}. Captured from a real run of the local app against the PayPal sandbox, in ALIGN mode, with Playwright and the Chrome DevTools screencast; composed with Remotion.\n\n| Starts | On screen | Voiceover |\n| --- | --- | --- |\n${scriptRows.join("\n")}\n`,
+  `# ALIGN Pay demo video: script\n\nFinal length: ${cursor.toFixed(1)} s. Narration: ${engines.join(", ")}. Captured from a real run of the local app against the PayPal sandbox (the store's rules come from the Sample ALIGN ledger in the repository), with Playwright and the Chrome DevTools screencast; composed with Remotion.\n\n| Starts | On screen | Voiceover |\n| --- | --- | --- |\n${scriptRows.join("\n")}\n`,
 );
 
 const tags = ["PayPal", "PayPal sandbox", "PayPal Agent Toolkit", "AI agents", "Gemini", "agent payments", "refunds", "invoicing", "ALIGN", "decision ledger", "hackathon", "PayPal AI Hackathon", "TypeScript", "Next.js", "Model Context Protocol"];

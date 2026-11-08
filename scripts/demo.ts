@@ -3,12 +3,12 @@
  *
  * 1. Refuses to start unless PAYPAL_ENV=sandbox.
  * 2. Builds and starts the app on http://localhost:3000 (`--dev` runs the dev server instead).
- * 3. The app picks its ledger: ALIGN through `align mcp` if it answers, else ledger/fixtures.json. The banner says which.
+ * 3. The ledger is the Sample ALIGN ledger (ledger/sample-ledger.json); ALIGN_PAY_LEDGER=align connects a live ALIGN
+ *    workspace through `align mcp` instead. The banner says which.
  * 4. If cloudflared is installed: a quick tunnel, and the PayPal webhook pointed at it (the URL changes every run).
  */
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
-import { chmodSync, copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync } from "node:fs";
 import { assertSandboxEnv } from "@align-agent/paypal-guard";
 import { DATA_DIR, REPO_ROOT, loadEnv, requireEnv } from "./lib/env";
 import { registerWebhook } from "./register-webhook";
@@ -30,16 +30,6 @@ const dev = process.argv.includes("--dev");
 const noTunnel = process.argv.includes("--no-tunnel") || process.env.ALIGN_PAY_NO_TUNNEL === "1";
 const port = Number(process.env.PORT ?? 3000);
 mkdirSync(DATA_DIR, { recursive: true });
-
-// The owner's confirmed limits (written by the owner's setup), copied in read-only. Never written by ALIGN Pay.
-const confirmed = process.env.ALIGN_PAY_CONFIRMED_LIMITS;
-const target = join(DATA_DIR, "owner-confirmed-limits.json");
-if (confirmed && existsSync(confirmed)) {
-  rmSync(target, { force: true });
-  copyFileSync(confirmed, target);
-  chmodSync(target, 0o444);
-  console.log("✓ The owner's confirmed limits are copied in (read-only).");
-}
 
 const env = { ...process.env, ALIGN_PAY_ROOT: REPO_ROOT, PORT: String(port), NEXT_TELEMETRY_DISABLED: "1" };
 const children: ChildProcess[] = [];

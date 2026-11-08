@@ -10,6 +10,8 @@ export interface ReceiptCard {
   type: ActionRecord["type"];
   title: string;
   decisionKey: string | null;
+  /** What the outcome rests on: a decision, PayPal's records alone, or nobody's decision. */
+  basis: "decision" | "paypal" | "no_decision";
   statement: string | null;
   receipts: Receipt[];
   reason: string;
@@ -96,6 +98,7 @@ export function receiptCard(rec: ActionRecord, policies: Policy[]): ReceiptCard 
     type: rec.type,
     title: `${TITLES[rec.type] ?? rec.type}${rec.amountUsd !== undefined ? ` · ${usd(rec.amountUsd)}` : v.requestedUsd !== null ? ` · ${usd(v.requestedUsd)}` : ""}`,
     decisionKey: key,
+    basis: key ? "decision" : v.code === "no_decision" || v.code === "unknown_tool" ? "no_decision" : "paypal",
     statement: policy?.statement ?? firing?.statement ?? null,
     receipts: policy?.receipts ?? (firing?.quotes ?? []).map((q) => ({ quote: q, source: "ledger" })),
     reason: rec.status === "denied" ? r.reason : v.reason,

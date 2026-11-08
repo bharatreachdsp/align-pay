@@ -1,6 +1,6 @@
 /**
- * The judge walkthrough: a fresh clone of the public repository in a temporary folder, only `.env` filled, fixtures
- * mode, then the testing steps from the submission (Q18), followed word for word at 1440 px.
+ * The judge walkthrough: a fresh clone of the public repository in a temporary folder, only `.env` filled, the
+ * Sample ALIGN ledger, then the testing steps from the submission (Q18), followed word for word at 1440 px.
  *
  *   tsx scripts/judge.ts            # clones github.com/bharatreachdsp/align-pay
  *   tsx scripts/judge.ts --keep     # keeps the temporary folder afterwards
@@ -12,7 +12,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { REPO_ROOT, loadEnv } from "./lib/env";
-import { type App, approveFirstHold, go, openApp, pickCustomer, say, waitForStatus } from "./lib/flow";
+import { type App, approveFirstHold, confirmRules, go, openApp, pickCustomer, say, waitForStatus } from "./lib/flow";
 
 loadEnv();
 const PORT = 3100;
@@ -36,7 +36,7 @@ try {
   run("pnpm", ["install", "--frozen-lockfile"], dir);
   log("1. Clone the repository and run pnpm install", true, dir);
 
-  // Step 2: only .env, with the sandbox keys and a Gemini key. Fixtures mode, as for a judge without ALIGN.
+  // Step 2: only .env, with the sandbox keys and a Gemini key.
   const e = process.env;
   writeFileSync(
     join(dir, ".env"),
@@ -45,7 +45,6 @@ try {
       `PAYPAL_CLIENT_ID=${e.PAYPAL_CLIENT_ID}`,
       `PAYPAL_CLIENT_SECRET=${e.PAYPAL_CLIENT_SECRET}`,
       `GOOGLE_GENERATIVE_AI_API_KEY=${e.GOOGLE_GENERATIVE_AI_API_KEY}`,
-      "ALIGN_PAY_LEDGER=fixtures",
       `PORT=${PORT}`,
       "ALIGN_PAY_NO_TUNNEL=1",
       "",
@@ -64,23 +63,18 @@ try {
   const deadline = Date.now() + 300_000;
   while (!/ALIGN Pay is running/.test(out) && Date.now() < deadline) await new Promise((r) => setTimeout(r, 1000));
   if (!/ALIGN Pay is running/.test(out)) throw new Error(`pnpm demo did not start:\n${out.slice(-1500)}`);
-  log("3. Run pnpm demo", /local fixtures/.test(out), out.match(/Ledger: [^\n]+/)?.[0] ?? "");
+  log("3. Run pnpm demo", /Sample ALIGN ledger/.test(out), out.match(/Ledger: [^\n]+/)?.[0] ?? "");
 
   app = await openApp(BASE, { width: 1440, height: 900 }, 1);
   await go(app, "/");
   const badge = await app.page.getByTestId("ledger-badge").innerText();
-  log("3. The banner says the bundled sample decisions are in use", /fixtures/.test(badge), badge.replace(/\s+/g, " "));
+  log("3. The banner says the Sample ALIGN ledger is in use", /Sample ALIGN ledger/.test(badge), badge.replace(/\s+/g, " "));
 
-  // Step 3 (cont.): Owner → Confirm on the four limits.
-  await go(app, "/owner");
-  for (let i = 1; i <= 4; i++) {
-    const card = app.page.getByTestId(`policy-LOCAL-${i}`);
-    await card.waitFor({ timeout: 120_000 });
-    await card.getByTestId(`confirm-LOCAL-${i}`).waitFor({ timeout: 120_000 });
-    await card.getByTestId(`confirm-LOCAL-${i}`).click();
-    await app.page.locator(`[data-testid="policy-LOCAL-${i}"][data-status="confirmed"]`).waitFor({ timeout: 20_000 });
-  }
-  log("3. Open Owner and click Confirm on the four limits", true);
+  // Step 3 (cont.): Review and confirm the store's rules → Confirm on each of the four (playing the store owner).
+  await app.page.getByTestId("review-rules").click();
+  await app.page.waitForURL(/\/owner/);
+  const confirmed = await confirmRules(app);
+  log("3. Click Review and confirm the store's rules, then Confirm on each of the four", confirmed.length === 4, confirmed.join(", "));
 
   // Step 4: Start a demo; Support; Asha.
   await go(app, "/");
@@ -90,7 +84,7 @@ try {
   const held = await say(app, "My chai case arrived damaged, please refund the $180.");
   const heldStatus = held ? await held.getAttribute("data-status") : null;
   const heldKey = held ? await held.getByTestId("decision-key").innerText().catch(() => "") : "";
-  log("4. Asha's $180 refund is held, quoting the owner's $50 rule", heldStatus === "held" && heldKey === "LOCAL-1", `${heldStatus} ${heldKey}`);
+  log("4. Asha's $180 refund is held, quoting the owner's $50 rule", heldStatus === "held" && heldKey === "AL-1", `${heldStatus} ${heldKey}`);
 
   // Step 5: Owner approves; the card shows the PayPal id.
   const approved = await approveFirstHold(app, "Approved in the judge walkthrough");
