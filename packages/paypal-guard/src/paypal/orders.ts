@@ -66,8 +66,9 @@ export interface OrderItem {
   sku?: string;
 }
 
-function orderBody(customId: string, description: string, items: OrderItem[]) {
-  const total = items.reduce((s, i) => s + i.quantity * i.unitUsd, 0);
+function orderBody(customId: string, description: string, items: OrderItem[], shippingUsd = 0) {
+  const itemTotal = items.reduce((s, i) => s + i.quantity * i.unitUsd, 0);
+  const total = itemTotal + shippingUsd;
   return {
     intent: "CAPTURE",
     purchase_units: [
@@ -77,7 +78,10 @@ function orderBody(customId: string, description: string, items: OrderItem[]) {
         amount: {
           currency_code: "USD",
           value: total.toFixed(2),
-          breakdown: { item_total: { currency_code: "USD", value: total.toFixed(2) } },
+          breakdown: {
+            item_total: { currency_code: "USD", value: itemTotal.toFixed(2) },
+            ...(shippingUsd > 0 ? { shipping: { currency_code: "USD", value: shippingUsd.toFixed(2) } } : {}),
+          },
         },
         items: items.map((i) => ({
           name: i.name,
@@ -96,12 +100,12 @@ function orderBody(customId: string, description: string, items: OrderItem[]) {
  */
 export async function createCardOrder(
   pp: PayPalClient,
-  a: { customId: string; description: string; items: OrderItem[]; requestId: string },
+  a: { customId: string; description: string; items: OrderItem[]; requestId: string; shippingUsd?: number },
 ): Promise<Order> {
   return pp.request("POST", "/v2/checkout/orders", {
     requestId: a.requestId,
     prefer: "return=representation",
-    body: { ...orderBody(a.customId, a.description, a.items), payment_source: { card: SANDBOX_TEST_CARD } },
+    body: { ...orderBody(a.customId, a.description, a.items, a.shippingUsd), payment_source: { card: SANDBOX_TEST_CARD } },
     schema: Order,
   });
 }
@@ -109,12 +113,12 @@ export async function createCardOrder(
 /** An order for the PayPal buttons on the store page; the buyer approves it, then the server captures it. */
 export async function createButtonOrder(
   pp: PayPalClient,
-  a: { customId: string; description: string; items: OrderItem[]; requestId: string },
+  a: { customId: string; description: string; items: OrderItem[]; requestId: string; shippingUsd?: number },
 ): Promise<Order> {
   return pp.request("POST", "/v2/checkout/orders", {
     requestId: a.requestId,
     prefer: "return=representation",
-    body: orderBody(a.customId, a.description, a.items),
+    body: orderBody(a.customId, a.description, a.items, a.shippingUsd),
     schema: Order,
   });
 }

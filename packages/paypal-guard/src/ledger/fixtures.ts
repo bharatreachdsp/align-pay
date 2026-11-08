@@ -23,7 +23,7 @@ export class FixturesLedger implements Ledger {
   constructor(private readonly file: string) {}
 
   async sync(): Promise<LedgerSnapshot> {
-    const parsed = FixturesFile.parse(JSON.parse(readFileSync(this.file, "utf8")));
+    const parsed = FixturesFile.parse(JSON.parse(readFileSync(/*turbopackIgnore: true*/ this.file, "utf8")));
     return {
       mode: "fixtures",
       syncedAt: new Date().toISOString(),

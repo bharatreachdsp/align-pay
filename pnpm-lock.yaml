@@ -38,6 +38,9 @@ importers:
       '@align-agent/paypal-guard':
         specifier: workspace:*
         version: link:../../packages/paypal-guard
+      '@paypal/agent-toolkit':
+        specifier: 1.11.0
+        version: 1.11.0(react@19.3.1)
       ai:
         specifier: 6.0.325
         version: 6.0.325(zod@4.6.7)
@@ -3041,13 +3044,13 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@langchain/core@0.3.6(openai@4.86.1(zod@3.25.76))':
+  '@langchain/core@0.3.6(openai@4.86.1(zod@4.6.7))':
     dependencies:
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.21
-      langsmith: 0.1.68(openai@4.86.1(zod@3.25.76))
+      langsmith: 0.1.68(openai@4.86.1(zod@4.6.7))
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
@@ -3137,7 +3140,7 @@ snapshots:
     dependencies:
       os: 0.1.2
       '@dotenvx/dotenvx': 1.75.1
-      '@langchain/core': 0.3.6(openai@4.86.1(zod@3.25.76))
+      '@langchain/core': 0.3.6(openai@4.86.1(zod@4.6.7))
       '@modelcontextprotocol/sdk': 1.32.2(zod@3.25.76)
       '@paypal/paypal-server-sdk': 1.1.0(debug@4.4.3)
       ai: 4.3.19(react@19.3.1)(zod@3.25.76)
@@ -4058,7 +4061,7 @@ snapshots:
     dependencies:
       '@keyv/serialize': 1.1.1
 
-  langsmith@0.1.68(openai@4.86.1(zod@3.25.76)):
+  langsmith@0.1.68(openai@4.86.1(zod@4.6.7)):
     dependencies:
       '@types/uuid': 10.0.0
       commander: 10.0.1

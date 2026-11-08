@@ -36,7 +36,8 @@ export interface AuditReport {
   transactionSearchNote: string | null;
 }
 
-const traced = (a: ActionRecord) => `traced to ${a.decisionKey ?? "no key"} via action ${a.id}`;
+const traced = (a: ActionRecord) =>
+  a.decisionKey ? `traced to ${a.decisionKey} via action ${a.id}` : `traced to the owner's approval via action ${a.id} (no standing decision)`;
 const UNTRACED = "untraced: no ALIGN Pay action or decision behind it";
 
 /**

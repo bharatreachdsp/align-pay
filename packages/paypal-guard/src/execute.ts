@@ -36,7 +36,9 @@ export class PayPalExecutor implements Executor {
           requestId: rec.id,
           customId: rec.id,
           // PayPal HTML-escapes "&" in note_to_payer ("&amp;"), so the note spells it out.
-          noteToPayer: `Refund under ${this.storeName.replace(/&/g, "and")} policy ${key}${verdict.approved ? " (approved by the owner)" : ""}`,
+          noteToPayer: verdict.primaryKey
+            ? `Refund under ${this.storeName.replace(/&/g, "and")} policy ${key}${verdict.approved ? " (approved by the owner)" : ""}`
+            : `Refund approved by the ${this.storeName.replace(/&/g, "and")} owner`,
         });
         return { paypalId: r.id, paypalStatus: r.status, amountUsd: verdict.requestedUsd };
       }
@@ -44,7 +46,11 @@ export class PayPalExecutor implements Executor {
         if (facts.kind !== "invoice" || !facts.draft) throw new Error("invoice facts missing");
         const inv = await createInvoice(
           this.pp,
-          invoicePayload(facts.draft, `ALIGN ${key} · ${rec.id}`, new Date().toISOString().slice(0, 10)),
+          invoicePayload(
+            facts.draft,
+            verdict.primaryKey ? `ALIGN ${key} · ${rec.id}` : `ALIGN owner approval · ${rec.id}`,
+            new Date().toISOString().slice(0, 10),
+          ),
           rec.id,
         );
         return { paypalId: inv.id, paypalStatus: inv.status, amountUsd: facts.draft.totalUsd };

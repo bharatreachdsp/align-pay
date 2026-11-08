@@ -8,8 +8,8 @@ class SqliteBackend implements DocBackend {
   private readonly db: DatabaseSync;
 
   constructor(file: string) {
-    mkdirSync(dirname(file), { recursive: true });
-    this.db = new DatabaseSync(file);
+    mkdirSync(/*turbopackIgnore: true*/ dirname(file), { recursive: true });
+    this.db = new DatabaseSync(/*turbopackIgnore: true*/ file);
     this.db.exec(`
       PRAGMA journal_mode = WAL;
       PRAGMA busy_timeout = 3000;
