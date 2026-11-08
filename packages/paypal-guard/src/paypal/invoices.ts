@@ -127,6 +127,11 @@ export async function cancelInvoice(pp: PayPalClient, id: string, requestId: str
   });
 }
 
+/** Deletes a draft invoice (used by the sandbox tests to clean up). */
+export async function deleteInvoice(pp: PayPalClient, id: string): Promise<void> {
+  await pp.request("DELETE", `/v2/invoicing/invoices/${encodeURIComponent(id)}`, { allowEmpty: true });
+}
+
 export const InvoiceList = z.object({
   items: z.array(Invoice).default([]),
   total_items: z.number().optional(),

@@ -50,6 +50,10 @@ export function classifyAudit(i: AuditInput): AuditReport {
   const byActionId = new Map(executed.map((a) => [a.id, a]));
   const ordersByCapture = new Map(i.orders.filter((o) => o.captureId).map((o) => [o.captureId!, o]));
   const listed = new Set<string>();
+  // Payments the store did not take: ALIGN Pay's own sandbox tests and setup checks tag their orders "kk-…".
+  const testCaptures = new Set(
+    (i.transactions ?? []).filter((t) => isPaymentCode(t.transaction_event_code) && t.custom_field?.startsWith("kk-")).map((t) => t.transaction_id),
+  );
 
   for (const t of i.transactions ?? []) {
     listed.add(t.transaction_id);
@@ -61,6 +65,18 @@ export function classifyAudit(i: AuditInput): AuditReport {
       source: "Transaction Search" as const,
       note: null,
     };
+    if (t.custom_field?.startsWith("kk-") || (t.paypal_reference_id && testCaptures.has(t.paypal_reference_id))) {
+      rows.push({
+        ...base,
+        kind: isRefundCode(t.transaction_event_code) ? "refund" : "payment",
+        cls: "other",
+        label: `${isRefundCode(t.transaction_event_code) ? "refund" : "payment"} by ALIGN Pay's own sandbox tests or setup check, not the store`,
+        decisionKey: null,
+        actionId: null,
+        orderId: null,
+      });
+      continue;
+    }
     if (isRefundCode(t.transaction_event_code)) {
       const a = byPaypalId.get(t.transaction_id) ?? (t.custom_field ? byActionId.get(t.custom_field) : undefined);
       rows.push({

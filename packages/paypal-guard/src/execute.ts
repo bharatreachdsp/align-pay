@@ -35,7 +35,8 @@ export class PayPalExecutor implements Executor {
           amountUsd: verdict.requestedUsd,
           requestId: rec.id,
           customId: rec.id,
-          noteToPayer: `Refund under ${this.storeName} policy ${key}${verdict.approved ? " (approved by the owner)" : ""}`,
+          // PayPal HTML-escapes "&" in note_to_payer ("&amp;"), so the note spells it out.
+          noteToPayer: `Refund under ${this.storeName.replace(/&/g, "and")} policy ${key}${verdict.approved ? " (approved by the owner)" : ""}`,
         });
         return { paypalId: r.id, paypalStatus: r.status, amountUsd: verdict.requestedUsd };
       }

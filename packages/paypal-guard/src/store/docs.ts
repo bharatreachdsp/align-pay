@@ -100,7 +100,9 @@ export class DocStore implements Store {
   }
 
   resetDemo() {
+    const seedOrders = this.listOrders().filter((o) => o.source === "seed");
     for (const c of ["actions", "orders", "scenarios", "webhook_events"]) this.db.clear(c);
+    for (const o of seedOrders) this.putOrder(o);
     this.db.del("kv", "last_audit");
   }
 }
