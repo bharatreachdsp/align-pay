@@ -21,10 +21,15 @@ const state = await appState(BASE);
 // 1280×720 at 1.5× gives 1920×1080 frames with text large enough to read on a phone.
 const SCALE = 1.5;
 const rec = new Recorder(WORK, SCALE);
+// --only=rules,audit re-records just those scenes (the others keep their recordings).
+const ONLY = (process.argv.find((a) => a.startsWith("--only="))?.slice(7).split(",") ?? []).filter(Boolean);
+const want = (id: string) => ONLY.length === 0 || ONLY.includes(id);
+const SUPPORT_SCENES = ["hook", "injection", "asha-held", "approve", "verified", "ben", "chen"];
 const done: { id: string; duration: number }[] = [];
 const TYPE = 38;
 
 async function scene(page: Page, id: string, fn: () => Promise<void>) {
+  if (!want(id)) return;
   console.log(`● ${id}`);
   await page.bringToFront();
   await rec.begin(page, id);
@@ -65,13 +70,15 @@ const owner: App = { ...support, page: ownerPage };
 try {
   // The demo's orders exist before the story starts (Start a demo needs the rules confirmed, so do that first).
   if (state.confirmed < 4) await confirmRules(owner);
-  console.log("Resetting and starting a fresh demo…");
-  await fetch(`${BASE}/api/demo/reset`, { method: "POST" });
-  await startDemo(support);
+  if (SUPPORT_SCENES.some(want)) {
+    console.log("Resetting and starting a fresh demo…");
+    await fetch(`${BASE}/api/demo/reset`, { method: "POST" });
+    await startDemo(support);
+  }
 
   // Off camera: withdraw the four confirmations, so the owner confirms them on camera.
   await go(owner, "/owner");
-  for (const p of (await appState(BASE)).policies) {
+  for (const p of want("rules") ? (await appState(BASE)).policies : []) {
     const w = owner.page.getByTestId(`withdraw-${p.decisionKey}`);
     if (await w.count()) {
       await w.click();
@@ -96,16 +103,20 @@ try {
     const first = owner.page.locator('[data-testid^="policy-"]').first();
     await rec.callout(first.locator("blockquote"), "The owner's exact words: the receipt", 3.2);
     await owner.page.waitForTimeout(2200);
-    await rec.callout(first.locator("ul"), "Limits Gemini drafted", 2.8);
-    await owner.page.waitForTimeout(1800);
+    await rec.callout(first.locator("ul"), "Limits Gemini drafted", 2.0);
+    await owner.page.waitForTimeout(2100);
     let n = 0;
     await confirmRules(owner, {
       pause: 700,
       onEach: async (card) => {
-        if (n++ === 0) await rec.callout(card.locator('[data-testid^="confirm-"]'), "The store owner confirms", 2.5);
-        await owner.page.waitForTimeout(500);
+        if (n++ === 0) {
+          await rec.callout(card.locator('[data-testid^="confirm-"]'), "The store owner confirms", 1.6);
+          await owner.page.waitForTimeout(1600);
+        } else await owner.page.waitForTimeout(500);
       },
     });
+    // The "not confirmed yet" notice goes away on the next refresh; let the layout settle before measuring.
+    await owner.page.getByTestId("confirm-hint").waitFor({ state: "detached", timeout: 12_000 }).catch(() => {});
     await glide(owner.page, "#rules", 80, 900);
     await rec.callout(first.getByTestId("confirmed-by"), "Confirmed by the store owner", 3);
     await owner.page.waitForTimeout(2600);
@@ -163,7 +174,8 @@ try {
     const card = support.page.getByTestId("receipt-card").last();
     await waitForStatus(card, "allowed", 30_000);
     await scrollChat(support.page);
-    const ok = await waitForWebhook(card, 120_000);
+    // PayPal sometimes takes a few minutes to deliver; the wait is cut from the video.
+    const ok = await waitForWebhook(card, 360_000);
     await support.page.waitForTimeout(600);
     if (ok) await rec.callout(card.getByTestId("webhook-verified"), "PayPal's signed webhook", 3.5);
     await support.page.waitForTimeout(3200);
@@ -232,5 +244,7 @@ try {
   await support.browser.close();
 }
 
-writeFileSync(join(WORK, "..", "capture.json"), JSON.stringify({ capturedAt: new Date().toISOString(), ledger: state.ledger.label, scenes: done }, null, 2));
+if (ONLY.length === 0) {
+  writeFileSync(join(WORK, "..", "capture.json"), JSON.stringify({ capturedAt: new Date().toISOString(), ledger: state.ledger.label, scenes: done }, null, 2));
+}
 console.log("Captured.");

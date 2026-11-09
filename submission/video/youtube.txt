@@ -6,7 +6,7 @@ ALIGN Pay is an open-source guard between an AI agent and PayPal, built on ALIGN
 
 The model proposes, a person confirms, plain code enforces. Gemini runs the support agent and drafts limits from each decision; the store owner confirms them; deterministic code enforces them against PayPal's own records (Orders, Payments, Invoicing, Disputes, Transaction Search, webhooks).
 
-Kettle & Kesar is a fictional store. Everything runs in the PayPal sandbox: no real money moves.
+Kettle & Kesar is a fictional store, and its four rules come from a sample ALIGN ledger that ships with the code. Everything runs in the PayPal sandbox: no real money moves.
 
 Code (MIT): https://github.com/bharatreachdsp/align-pay
 Built for the PayPal AI Hackathon.

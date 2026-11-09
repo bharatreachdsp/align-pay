@@ -39,10 +39,12 @@ export class Recorder {
     this.n = 0;
     this.start = Date.now() / 1000;
     this.cdp = await page.context().newCDPSession(page);
-    this.cdp.on("Page.screencastFrame", (e: { data: string; sessionId: number; metadata: { timestamp?: number } }) => {
+    this.cdp.on("Page.screencastFrame", (e: { data: string; sessionId: number }) => {
+      // Frames are timed on the same clock as callouts (Chrome's own frame timestamps drift from it).
+      const t = Date.now() / 1000 - this.start;
       const file = `f${String(++this.n).padStart(5, "0")}.jpg`;
       writeFileSync(join(this.dir, file), Buffer.from(e.data, "base64"));
-      this.frames.push({ file, t: (e.metadata.timestamp ?? Date.now() / 1000) - this.start });
+      this.frames.push({ file, t });
       void this.cdp?.send("Page.screencastFrameAck", { sessionId: e.sessionId }).catch(() => {});
     });
     await this.snap();
@@ -63,6 +65,8 @@ export class Recorder {
     // Measure only once the element is in view and the page has settled.
     await loc.scrollIntoViewIfNeeded().catch(() => {});
     await loc.page().waitForTimeout(450);
+    // The screencast does not always send a frame after an instant scroll: take one, so the video shows what was measured.
+    await this.snap();
     const b = await loc.boundingBox().catch(() => null);
     if (b) {
       const k = this.scale;

@@ -74,37 +74,37 @@
         ],
         "callouts": [
           {
-            "from": 65,
-            "to": 161,
+            "from": 80,
+            "to": 130,
             "x": 157.5,
-            "y": 467.25,
+            "y": 467.296875,
             "w": 468.984375,
             "h": 113.34375,
             "label": "The owner's exact words: the receipt"
           },
           {
-            "from": 100,
-            "to": 184,
+            "from": 116,
+            "to": 152,
             "x": 157.5,
-            "y": 672.140625,
+            "y": 672.1875,
             "w": 468.984375,
             "h": 61.921875,
             "label": "Limits Gemini drafted"
           },
           {
-            "from": 100,
-            "to": 175,
+            "from": 166,
+            "to": 202,
             "x": 157.5,
-            "y": 912.703125,
+            "y": 912.75,
             "w": 120.5625,
             "h": 52.6640625,
             "label": "The store owner confirms"
           },
           {
-            "from": 283,
-            "to": 373,
+            "from": 384,
+            "to": 420,
             "x": 157.5,
-            "y": 710.625,
+            "y": 710.671875,
             "w": 468.984375,
             "h": 30.9609375,
             "label": "Confirmed by the store owner"
@@ -142,8 +142,8 @@
         ],
         "callouts": [
           {
-            "from": 307,
-            "to": 382,
+            "from": 291,
+            "to": 341,
             "x": 1288.0459899902344,
             "y": 172.86004257202148,
             "w": 132.29864501953125,
@@ -151,10 +151,10 @@
             "label": "Refused"
           },
           {
-            "from": 347,
-            "to": 416,
+            "from": 344,
+            "to": 407,
             "x": 642,
-            "y": 668.6015625,
+            "y": 561.515625,
             "w": 777,
             "h": 190.6875,
             "label": "PayPal's records, not words"
@@ -187,19 +187,19 @@
         ],
         "callouts": [
           {
-            "from": 238,
-            "to": 343,
+            "from": 219,
+            "to": 314,
             "x": 642,
-            "y": 250.125,
+            "y": 17.625,
             "w": 777,
             "h": 145.03125,
             "label": "The decision it rests on"
           },
           {
-            "from": 307,
-            "to": 402,
+            "from": 300,
+            "to": 396,
             "x": 642,
-            "y": 629.71875,
+            "y": 397.21875,
             "w": 777,
             "h": 161.15625,
             "label": "Facts read from PayPal, not the agent"
@@ -232,8 +232,8 @@
         ],
         "callouts": [
           {
-            "from": 171,
-            "to": 276,
+            "from": 167,
+            "to": 203,
             "x": 279.9140625,
             "y": 879.703125,
             "w": 213.84375,
@@ -245,7 +245,7 @@
       {
         "id": "verified",
         "kind": "segment",
-        "durationInFrames": 284,
+        "durationInFrames": 200,
         "video": "scenes/verified.mp4",
         "audio": "audio/verified.wav",
         "audioDelayFrames": 11,
@@ -263,11 +263,11 @@
         ],
         "callouts": [
           {
-            "from": 226,
-            "to": 278,
+            "from": 152,
+            "to": 191,
             "x": 642,
-            "y": 776.9296875,
-            "w": 331.453125,
+            "y": 508.4296875,
+            "w": 332.6953125,
             "h": 28.78125,
             "label": "PayPal's signed webhook"
           }
@@ -299,10 +299,10 @@
         ],
         "callouts": [
           {
-            "from": 205,
-            "to": 277,
+            "from": 212,
+            "to": 263,
             "x": 729.5859375,
-            "y": 596.3203125,
+            "y": 367.9921875,
             "w": 68.25,
             "h": 31.5,
             "label": "One refund in 30 days"
@@ -312,7 +312,7 @@
       {
         "id": "chen",
         "kind": "segment",
-        "durationInFrames": 495,
+        "durationInFrames": 836,
         "video": "scenes/chen.mp4",
         "audio": "audio/chen.wav",
         "audioDelayFrames": 11,
@@ -340,19 +340,19 @@
         ],
         "callouts": [
           {
-            "from": 180,
-            "to": 270,
+            "from": 262,
+            "to": 294,
             "x": 642,
-            "y": 410.15625,
+            "y": 185.15625,
             "w": 777,
             "h": 67.6875,
             "label": "Net 30 and 20% off: blocked"
           },
           {
-            "from": 420,
-            "to": 489,
+            "from": 788,
+            "to": 825,
             "x": 1330.6737670898438,
-            "y": 549.3486328125,
+            "y": 359.9267578125,
             "w": 89.72286987304688,
             "h": 49.037109375,
             "label": "Over $2,000: waits for the owner"
@@ -385,8 +385,8 @@
         ],
         "callouts": [
           {
-            "from": 148,
-            "to": 238,
+            "from": 161,
+            "to": 197,
             "x": 124.5,
             "y": 449.6015625,
             "w": 1671,
@@ -394,12 +394,12 @@
             "label": "Traced to a decision"
           },
           {
-            "from": 224,
-            "to": 344,
+            "from": 260,
+            "to": 296,
             "x": 124.5,
-            "y": 450.0234375,
+            "y": 449.3671875,
             "w": 1671,
-            "h": 125.8359375,
+            "h": 94.875,
             "label": "Made directly in PayPal: untraced"
           }
         ]
@@ -430,8 +430,8 @@
         ],
         "callouts": [
           {
-            "from": 159,
-            "to": 279,
+            "from": 176,
+            "to": 212,
             "x": 123,
             "y": 239.8359375,
             "w": 822,

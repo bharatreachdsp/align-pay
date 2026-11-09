@@ -21,7 +21,7 @@ const PUB = join(REMOTION, "public");
 const OUT = join(REPO_ROOT, "submission", "video");
 const REPO_URL = "github.com/bharatreachdsp/align-pay";
 const MAX_GAP = 1.2;
-const MAX_SPEED = 2.2;
+const MAX_SPEED = 2.8;
 const LEAD = 0.35;
 const TAIL = 0.75;
 const TITLE_S = 3.2;
@@ -48,6 +48,14 @@ function clipFromFrames(id: string): { file: string; duration: number; map: (t: 
   const dir = join(WORK, "scenes", id);
   const meta = JSON.parse(readFileSync(join(dir, "meta.json"), "utf8")) as Meta;
   const frames = meta.frames.filter((f) => f.t >= 0);
+  // At each callout, show the page as it was measured: if no frame arrived right then (the screencast can miss an
+  // instant scroll), the next frame, which shows that state, is shown from the callout's time.
+  for (const c of meta.callouts) {
+    const next = frames.find((f) => f.t > c.t);
+    const prev = [...frames].reverse().find((f) => f.t <= c.t);
+    if (next && (!prev || c.t - prev.t > 0.3) && next.t - c.t > 0.3) frames.push({ file: next.file, t: c.t });
+  }
+  frames.sort((a, b) => a.t - b.t);
   // Compressed time: every still stretch longer than MAX_GAP is cut down to MAX_GAP.
   const comp: number[] = [];
   let shift = 0;
@@ -62,7 +70,9 @@ function clipFromFrames(id: string): { file: string; duration: number; map: (t: 
   };
   const end = Math.max(0.5, map(Math.max(meta.duration, frames.at(-1)?.t ?? 0)));
   const out = frames.map((f, i) => ({ file: f.file, t: comp[i]! }));
-  const list = out.map((f, i) => `file '${join(dir, f.file)}'\nduration ${Math.max(1 / FPS, ((out[i + 1]?.t ?? end) - f.t)).toFixed(4)}`).join("\n");
+  // Exact durations (not rounded up to a video frame): the screencast sends ~60 frames a second while scrolling, and
+  // rounding each up would stretch every scroll and push the clip out of step with its callouts.
+  const list = out.map((f, i) => `file '${join(dir, f.file)}'\nduration ${Math.max(0.001, (out[i + 1]?.t ?? end) - f.t).toFixed(4)}`).join("\n");
   writeFileSync(join(dir, "list.txt"), `${list}\nfile '${join(dir, out.at(-1)!.file)}'\n`);
   const file = join(dir, "clip.mp4");
   ff(["-f", "concat", "-safe", "0", "-i", join(dir, "list.txt"), "-fps_mode", "cfr", "-r", String(FPS), "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0xf6efe3", "-pix_fmt", "yuv420p", "-c:v", "libx264", "-preset", "veryfast", "-crf", "16", file]);
@@ -130,9 +140,11 @@ for (const s of scenes) {
     t += len;
     return c;
   });
+  // A callout ends when its real hold ends, mapped through the same compression, so it never outlasts the page change.
   const cs = callouts.map((c) => {
     const from = Math.round((map(c.t) / speed) * FPS);
-    return { from, to: Math.min(frames - 6, from + Math.round(c.hold * FPS)), x: c.x, y: c.y, w: c.w, h: c.h, label: c.label };
+    const to = Math.round((map(c.t + c.hold) / speed) * FPS);
+    return { from, to: Math.min(frames - 6, Math.max(from + 20, to)), x: c.x, y: c.y, w: c.w, h: c.h, label: c.label };
   });
   plan.scenes.push({ id: s.id, kind: "segment", durationInFrames: frames, video: `scenes/${s.id}.mp4`, audio: `audio/${s.id}.wav`, audioDelayFrames: Math.round(LEAD * FPS), captions: caps, callouts: cs.filter((c) => c.to > c.from) });
   const mm = `${Math.floor(cursor / 60)}:${String(Math.floor(cursor % 60)).padStart(2, "0")}`;
@@ -159,7 +171,8 @@ if (r.status !== 0) {
   process.exit(1);
 }
 const final = join(OUT, "final.mp4");
-ff(["-i", render, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-movflags", "+faststart", final]);
+// Loudness normalised for YouTube (-16 LUFS), H.264 with -preset veryfast, AAC.
+ff(["-i", render, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-movflags", "+faststart", final]);
 
 const ts = (x: number) => {
   const ms = Math.round(x * 1000);
@@ -179,7 +192,7 @@ writeFileSync(
 const tags = ["PayPal", "PayPal sandbox", "PayPal Agent Toolkit", "AI agents", "Gemini", "agent payments", "refunds", "invoicing", "ALIGN", "decision ledger", "hackathon", "PayPal AI Hackathon", "TypeScript", "Next.js", "Model Context Protocol"];
 writeFileSync(
   join(OUT, "youtube.txt"),
-  `Title:\nALIGN Pay: every PayPal refund your AI agent makes, traced to a human decision\n\nDescription:\nALIGN Pay is an open-source guard between an AI agent and PayPal, built on ALIGN, the decision ledger for teams that build software with AI agents. Every refund and invoice the agent makes traces back to a human decision, with the exact quote as its receipt; anything without one is held or flagged.\n\nThe model proposes, a person confirms, plain code enforces. Gemini runs the support agent and drafts limits from each decision; the store owner confirms them; deterministic code enforces them against PayPal's own records (Orders, Payments, Invoicing, Disputes, Transaction Search, webhooks).\n\nKettle & Kesar is a fictional store. Everything runs in the PayPal sandbox: no real money moves.\n\nCode (MIT): https://${REPO_URL}\nBuilt for the PayPal AI Hackathon.\n\nTags:\n${tags.join(", ")}\n`,
+  `Title:\nALIGN Pay: every PayPal refund your AI agent makes, traced to a human decision\n\nDescription:\nALIGN Pay is an open-source guard between an AI agent and PayPal, built on ALIGN, the decision ledger for teams that build software with AI agents. Every refund and invoice the agent makes traces back to a human decision, with the exact quote as its receipt; anything without one is held or flagged.\n\nThe model proposes, a person confirms, plain code enforces. Gemini runs the support agent and drafts limits from each decision; the store owner confirms them; deterministic code enforces them against PayPal's own records (Orders, Payments, Invoicing, Disputes, Transaction Search, webhooks).\n\nKettle & Kesar is a fictional store, and its four rules come from a sample ALIGN ledger that ships with the code. Everything runs in the PayPal sandbox: no real money moves.\n\nCode (MIT): https://${REPO_URL}\nBuilt for the PayPal AI Hackathon.\n\nTags:\n${tags.join(", ")}\n`,
 );
 
 const dur = seconds(final);
