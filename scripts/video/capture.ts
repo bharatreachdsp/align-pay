@@ -35,28 +35,25 @@ async function scene(page: Page, id: string, fn: () => Promise<void>) {
   console.log(`  ${r.duration.toFixed(1)} s raw`);
 }
 
-/** Smoothly scrolls the page so `selector` sits `offset` px from the top. */
+/**
+ * Smoothly scrolls the page so `selector` sits `offset` px from the top. The browser code is a plain string: tsx would
+ * otherwise wrap its inner function with a helper the page does not have.
+ */
 async function glide(page: Page, selector: string, offset = 120, ms = 1200) {
-  await page.evaluate(
-    async ([sel, off, dur]) => {
-      const el = document.querySelector(sel as string);
-      if (!el) return;
-      const from = window.scrollY;
-      const to = el.getBoundingClientRect().top + window.scrollY - (off as number);
-      const t0 = performance.now();
-      await new Promise<void>((res) => {
-        const step = (now: number) => {
-          const k = Math.min(1, (now - t0) / (dur as number));
-          const e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
-          window.scrollTo(0, from + (to - from) * e);
-          if (k < 1) requestAnimationFrame(step);
-          else res();
-        };
-        requestAnimationFrame(step);
-      });
-    },
-    [selector, offset, ms],
-  );
+  await page.evaluate(`new Promise((res) => {
+    const el = document.querySelector(${JSON.stringify(selector)});
+    if (!el) return res(null);
+    const from = window.scrollY;
+    const to = el.getBoundingClientRect().top + window.scrollY - ${offset};
+    const t0 = performance.now();
+    function step(now) {
+      const k = Math.min(1, (now - t0) / ${ms});
+      const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      window.scrollTo(0, from + (to - from) * e);
+      if (k < 1) requestAnimationFrame(step); else res(null);
+    }
+    requestAnimationFrame(step);
+  })`);
   await page.waitForTimeout(250);
 }
 

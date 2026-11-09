@@ -60,6 +60,9 @@ export class Recorder {
 
   /** Marks an element for a callout box in the video, from now, for `hold` seconds. */
   async callout(loc: Locator, label: string, hold = 3.5): Promise<void> {
+    // Measure only once the element is in view and the page has settled.
+    await loc.scrollIntoViewIfNeeded().catch(() => {});
+    await loc.page().waitForTimeout(450);
     const b = await loc.boundingBox().catch(() => null);
     if (b) {
       const k = this.scale;

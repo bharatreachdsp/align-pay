@@ -1,0 +1,15 @@
+Title:
+ALIGN Pay: every PayPal refund your AI agent makes, traced to a human decision
+
+Description:
+ALIGN Pay is an open-source guard between an AI agent and PayPal, built on ALIGN, the decision ledger for teams that build software with AI agents. Every refund and invoice the agent makes traces back to a human decision, with the exact quote as its receipt; anything without one is held or flagged.
+
+The model proposes, a person confirms, plain code enforces. Gemini runs the support agent and drafts limits from each decision; the store owner confirms them; deterministic code enforces them against PayPal's own records (Orders, Payments, Invoicing, Disputes, Transaction Search, webhooks).
+
+Kettle & Kesar is a fictional store. Everything runs in the PayPal sandbox: no real money moves.
+
+Code (MIT): https://github.com/bharatreachdsp/align-pay
+Built for the PayPal AI Hackathon.
+
+Tags:
+PayPal, PayPal sandbox, PayPal Agent Toolkit, AI agents, Gemini, agent payments, refunds, invoicing, ALIGN, decision ledger, hackathon, PayPal AI Hackathon, TypeScript, Next.js, Model Context Protocol

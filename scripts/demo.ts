@@ -79,13 +79,41 @@ if (!first) {
 }
 
 let webhookLine = "webhooks: off (cloudflared is not installed; the app polls PayPal instead)";
+let tunnel: { url: string; child: ChildProcess } | null = null;
+
+/** Starts a quick tunnel and points the PayPal webhook at it. */
+async function openTunnel(): Promise<string> {
+  const t = await startTunnel(port);
+  tunnel = t;
+  children.push(t.child);
+  const hook = await registerWebhook(t.url);
+  return `webhooks: ${hook.url} (webhook ${hook.id})`;
+}
+
+/** Quick tunnels can stop answering (sleep, network change): check every few minutes and replace a dead one. */
+async function watchTunnel() {
+  for (;;) {
+    await new Promise((r) => setTimeout(r, 4 * 60_000));
+    if (!tunnel) continue;
+    const alive = await fetch(`${tunnel.url}/api/paypal/webhook`, { method: "POST", body: "{}", signal: AbortSignal.timeout(15_000) })
+      .then((r) => r.status === 400)
+      .catch(() => false);
+    if (alive) continue;
+    console.warn("! The tunnel stopped answering; opening a new one and pointing the PayPal webhook at it.");
+    tunnel.child.kill();
+    try {
+      console.log(await openTunnel());
+    } catch (e) {
+      console.warn(`! Could not reopen the tunnel: ${(e as Error).message}`);
+    }
+  }
+}
+
 if (noTunnel) webhookLine = "webhooks: off (--no-tunnel)";
 else if (hasCloudflared()) {
   try {
-    const t = await startTunnel(port);
-    children.push(t.child);
-    const hook = await registerWebhook(t.url);
-    webhookLine = `webhooks: ${hook.url} (webhook ${hook.id})`;
+    webhookLine = await openTunnel();
+    void watchTunnel();
   } catch (e) {
     webhookLine = `webhooks: off (${(e as Error).message})`;
   }

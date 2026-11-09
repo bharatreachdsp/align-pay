@@ -526,6 +526,10 @@ textarea:focus {
   max-height: 68vh;
 }
 
+.chat .log > * {
+  flex-shrink: 0;
+}
+
 .bubble {
   max-width: 78%;
   padding: 10px 14px;

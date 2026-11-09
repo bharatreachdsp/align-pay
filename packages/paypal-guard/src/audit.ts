@@ -204,6 +204,22 @@ export function classifyAudit(i: AuditInput): AuditReport {
     const sent = acts.find((a) => a.type === "invoice.send");
     const status = inv.status;
     const ok = created && (status === "DRAFT" || status === "CANCELLED" || sent || !["SENT", "UNPAID", "PAID", "PARTIALLY_PAID"].includes(status));
+    if (!created && isActionId(memoAction)) {
+      rows.push({
+        id: inv.id,
+        at: inv.detail?.metadata?.create_time ?? inv.detail?.invoice_date ?? i.now.toISOString(),
+        kind: "invoice",
+        amountUsd: inv.amount ? Number(inv.amount.value) : null,
+        cls: "other",
+        label: OTHER_COPY(memoAction),
+        decisionKey: null,
+        actionId: null,
+        orderId: null,
+        source: "Invoicing",
+        note: `invoice ${status.toLowerCase().replace(/_/g, " ")}`,
+      });
+      continue;
+    }
     rows.push({
       id: inv.id,
       at: inv.detail?.metadata?.create_time ?? inv.detail?.invoice_date ?? i.now.toISOString(),

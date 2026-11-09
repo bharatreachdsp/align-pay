@@ -102,6 +102,7 @@ describe("audit", () => {
       invoices: [
         { id: "INV2-A", status: "SENT", detail: { memo: "ALIGN AL-14 · alp_01JTEST0000000000000000002" }, amount: { currency_code: "USD", value: "3240.00" } },
         { id: "INV2-B", status: "SENT", detail: {}, amount: { currency_code: "USD", value: "99.00" } },
+        { id: "INV2-C", status: "DRAFT", detail: { memo: "ALIGN AL-4 · alp_01JTEST0000000000000000007" }, amount: { currency_code: "USD", value: "3240.00" } },
       ],
       actions: [create, send],
       orders: [],
@@ -111,6 +112,7 @@ describe("audit", () => {
     expect(by["INV2-A"]!.cls).toBe("traced");
     expect(by["INV2-A"]!.label).toMatch(/traced to AL-14 via action alp_01JTEST0000000000000000003/);
     expect(by["INV2-B"]!.cls).toBe("untraced");
+    expect(by["INV2-C"]!.cls).toBe("other");
   });
 });
 
