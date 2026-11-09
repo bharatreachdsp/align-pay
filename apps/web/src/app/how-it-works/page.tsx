@@ -25,10 +25,11 @@ export default function HowItWorks() {
           <h2>The three-line integration</h2>
           <pre className="code">
             <span className="c">{"// Agent Toolkit tools, guarded by the owner's confirmed decisions"}</span>
-            {"\nconst toolkit = new PayPalAgentToolkit({ clientId, clientSecret, configuration: { actions } });\nconst guard = createGuard({ ledger, store, paypal });\nconst tools = withAlignGuard(toolkit.getTools(), guard);"}
+            {"\nconst toolkit = new PayPalAgentToolkit({ clientId, clientSecret, configuration: { actions } });\nconst guard = createGuard({ store, facts, executor, policies });\nconst tools = withAlignGuard(toolkit.getTools(), guard, { customerId });"}
           </pre>
           <p className="small muted">
-            Read tools pass through to PayPal. Refunds and invoice create, send and cancel go through the guard. Tools that move
+            The guard reads its facts from PayPal, moves money only through its own executor, and enforces only the limits
+            the owner confirmed. Read tools pass through to PayPal. Refunds and invoice create, send and cancel go through the guard. Tools that move
             money but are not guarded are removed; a tool the guard does not know is held.
           </p>
         </div>

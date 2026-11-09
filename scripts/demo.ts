@@ -78,7 +78,7 @@ if (!first) {
   stop();
 }
 
-let webhookLine = "webhooks: off (cloudflared is not installed; the app polls PayPal instead)";
+let webhookLine = "webhooks: off (cloudflared is not installed; receipts stay at \"awaiting PayPal's webhook\" and the audit uses Transaction Search alone)";
 let tunnel: { url: string; child: ChildProcess } | null = null;
 
 /** Starts a quick tunnel and points the PayPal webhook at it. */

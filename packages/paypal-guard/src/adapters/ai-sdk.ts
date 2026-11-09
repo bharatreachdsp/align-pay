@@ -10,7 +10,7 @@ export interface ToolkitTool {
   description?: string;
   parameters?: unknown;
   inputSchema?: unknown;
-  execute?: (args: never, options?: unknown) => unknown;
+  execute?: (args: never, options: never) => unknown;
 }
 
 export interface GuardContext {

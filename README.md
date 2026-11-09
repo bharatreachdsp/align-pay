@@ -138,9 +138,28 @@ The banner on every page says which ledger is on.
 
 ```ts
 const toolkit = new PayPalAgentToolkit({ clientId, clientSecret, configuration: { actions } });
-const guard = createGuard({ ledger, store, paypal });
-const tools = withAlignGuard(toolkit.getTools(), guard);
+const guard = createGuard({ store, facts, executor, policies });
+const tools = withAlignGuard(toolkit.getTools(), guard, { customerId });
 ```
+
+`actions` is `SUPPORT_AGENT_TOOLKIT_ACTIONS`. `customerId` is the customer the conversation is with, taken from your
+session; without one, refunds and invoices are held. The guard's four parts, as the app builds them in
+[`apps/web/src/server/runtime.ts`](apps/web/src/server/runtime.ts):
+
+```ts
+import { PayPalClient, PayPalExecutor, PayPalFacts, createGuard, storePolicySource, withAlignGuard } from "@align-agent/paypal-guard";
+import { sqliteStore } from "@align-agent/paypal-guard/store/sqlite";
+
+const paypal = new PayPalClient({ clientId, clientSecret });             // sandbox only
+const store = sqliteStore(".data/align-pay.db");                         // limits, actions, receipts
+const facts = new PayPalFacts({ paypal, store, directory });             // captures, refunds, disputes, read from PayPal
+const executor = new PayPalExecutor(paypal);                             // the only code that moves money
+const policies = storePolicySource(store, () => "no ledger synced yet"); // the limits the owner confirmed
+```
+
+`directory` describes the store's customers and products (the demo's is `kettleAndKesar()`). The store gets its
+limits when the app syncs the ledger (`syncLedger`, `syncPolicies`): Gemini drafts limits from each decision, and the
+owner confirms them on the owner page. Until then, every money action is held.
 
 `withAlignGuard` (`packages/paypal-guard/src/adapters/ai-sdk.ts`) returns AI SDK tools: read tools call PayPal;
 refunds and invoice create, send and cancel go through the guard and return `{status, decision_key, reason,
@@ -183,7 +202,9 @@ submission/              the hackathon's gallery, thumbnail, overview PDF and vi
 - **Transaction Search lists transactions up to three hours late.** Newer refunds show "webhook verified, awaiting
   PayPal's listing" until it does.
 - **USD only.** Anything else is held.
-- Webhooks need `cloudflared`; without it, the receipt cards and audit read PayPal directly instead.
+- Webhooks need `cloudflared`. Without it, nothing polls PayPal in their place: receipt cards stay at "awaiting
+  PayPal's webhook", and the audit relies on Transaction Search alone, so a refund made outside ALIGN Pay shows as
+  untraced only once PayPal lists it (up to three hours later).
 - The demo has no live sandbox dispute: blocking a refund on an order with an open dispute is enforced and
   unit-tested, but not shown live.
 - Through the MCP proxy, refunds and invoices are held for the owner: a coding agent acts for no customer.
